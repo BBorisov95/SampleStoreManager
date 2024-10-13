@@ -144,7 +144,8 @@ Each User.Role will see different output item fields.
 url_endpoint = `http://127.0.0.1:5000/item/get-item/7`
 
 method: `GET`
-access: `public`
+
+access: `private`
 
 
 Expected responses:
@@ -175,7 +176,7 @@ url_endpoint: `http://127.0.0.1:5000/item/category/test2`
 
 method: `post`
 
-access: `public`
+access: `private`
 
 Similar to [Get Item](#get-item) but will return multiple object in an array:
 
