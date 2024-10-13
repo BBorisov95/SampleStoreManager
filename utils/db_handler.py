@@ -1,7 +1,6 @@
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
 from werkzeug.exceptions import Conflict
 
-
 from db import db
 
 msg_mapper = {
