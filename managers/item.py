@@ -50,7 +50,7 @@ class ItemManager:
         """
 
     @staticmethod
-    def get_item(item_id: str):
+    def get_item(item_id: int):
         """
         Get specific item information
         :param item_id: item_id
@@ -60,10 +60,10 @@ class ItemManager:
 
         if not item:
             raise NotFound("The item which you search is not existing!")
-        if item.get("stock") <= 0:
+        if item.stocks <= 0:
             raise NotFound("The requested item is currently not available for sale!")
 
-        a = 5  # TODO CHECK WHAT AND HOW TO RETURN
+        return item
 
     @staticmethod
     def get_all_items_from_cat(cat_name: str):
