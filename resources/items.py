@@ -18,3 +18,11 @@ class CreateItem(Resource):
         item_data = request.get_json()
         item = ItemManager.create_item(item_data)
         return {"item": ItemResponseSchema().dump(item)}, 201
+
+
+class DeleteItem(Resource):
+    @auth.login_required
+    @permission_required(UserRole.manager)
+    def delete(self, item_id: int):
+        ItemManager.delete_item(item_id)
+        return {}, 204
