@@ -11,12 +11,8 @@ class ItemModel(db.Model):
     name: Mapped[str] = mapped_column(db.String(255), nullable=False)
     price: Mapped[str] = mapped_column(db.Float(), nullable=False)
     part_number: Mapped[str] = mapped_column(db.String(32), nullable=False, unique=True)
-    ean: Mapped[int] = mapped_column(db.Integer())
+    ean: Mapped[int] = mapped_column(db.String(13))
     category: Mapped[str] = mapped_column(db.String(32), nullable=False)
     specs: Mapped[dict] = mapped_column(JSON, nullable=True)
     stocks: Mapped[int] = mapped_column(db.Integer(), nullable=False, default=0)
     sold_pieces: Mapped[int] = mapped_column(db.Integer(), nullable=False, default=0)
-
-    orders: Mapped[list[OrderModel]] = relationship(
-        "OrderModel", back_populates="items"
-    )
