@@ -17,13 +17,19 @@ class ItemManager:
         return item
 
     @staticmethod
-    def delete_item(item_id: str):
+    def delete_item(item_id: int):
         """
         Delete record from db
         :param item_id:
-        :return: status code
+        :return: None
         """
-        ...
+        requested_item = db.session.execute(
+            db.select(ItemModel).filter_by(id=item_id)
+        ).scalar()
+        if not requested_item:
+            raise NotFound("The item which you search is not existing!")
+        db.session.delete(requested_item)
+        db.session.flush()
 
     @staticmethod
     def update_specs(item_id: str):
