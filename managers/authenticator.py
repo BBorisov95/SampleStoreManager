@@ -4,7 +4,8 @@ import jwt
 import werkzeug.exceptions
 from decouple import config
 from flask_httpauth import HTTPTokenAuth
-from werkzeug.exceptions import Unauthorized
+from jwt.exceptions import DecodeError
+from werkzeug.exceptions import Unauthorized, BadRequest
 
 from db import db
 from models import UserModel
@@ -28,11 +29,16 @@ class AuthenticatorManager:
     def decode_token(token):
         try:
             token_info = jwt.decode(
-                jwt=token, key=config("secret_key"), algorithms=["hs256"]
+                jwt=token, key=config("secret_key"), algorithms=["HS256"]
             )
             return token_info.get("sub"), token_info.get("role")
+        except DecodeError as de:
+            """
+            if Empty token or wrong token
+            """
+            raise BadRequest("Invalid credentials!")
         except Exception as e:
-            # TODO catch the right exception
+            #TODO do not raise general exception
             raise e
 
 
