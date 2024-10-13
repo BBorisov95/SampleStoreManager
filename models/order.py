@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from db import db
 from models.enums import OrderStatus
@@ -14,5 +14,5 @@ class OrderModel(db.Model):
     status: Mapped[OrderStatus] = mapped_column(
         db.Enum(OrderStatus), nullable=False, default=OrderStatus.new.name
     )
-
-    item: Mapped["ItemModel"] = relationship("ItemModel", back_populates="orders")
+    #
+    # item: Mapped["ItemModel"] = relationship("ItemModel", back_populates="orders")
