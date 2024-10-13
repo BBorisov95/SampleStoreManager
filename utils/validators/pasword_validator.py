@@ -3,7 +3,7 @@ import re
 from marshmallow import ValidationError
 
 
-def validate_password(password, fn=None, ln=None):
+def validate_password(password: str, fn: str = None, ln: str = None):
     """
     Validate the password for register/login/change password
     :param password: user's password
@@ -49,5 +49,3 @@ def validate_password(password, fn=None, ln=None):
                 raise ValidationError(
                     "Password must not contain initials of your name!."
                 )
-
-    return True
