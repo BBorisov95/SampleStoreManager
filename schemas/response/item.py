@@ -1,13 +1,18 @@
 from marshmallow import fields
 
-from schemas.base_item_schema import BaseItemSchema
+from schemas.base_item_schema import BaseItemSchema, BaseItemDetailSchema
 
 
-class ItemResponseSchema(BaseItemSchema):
+class ItemResponseSchema(BaseItemDetailSchema):
+    pass
 
-    name = fields.String(required=True)
-    price = fields.Float(required=True)
-    part_number = fields.String(required=True)
-    ean = fields.Float(required=True)
-    category = fields.String(required=True)
-    specs = fields.Dict()
+
+class ItemResponseManagersSchema(BaseItemDetailSchema):
+
+    id = fields.Integer(required=True)
+    stocks = fields.Integer(required=True)
+    sold_pieces = fields.Integer(required=True)
+
+
+class ItemResponseDispatcherSchema(BaseItemSchema):
+    id = fields.Integer(required=True)
