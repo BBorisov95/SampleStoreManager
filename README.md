@@ -61,3 +61,41 @@ Expected response:
     "message": "Invalid payload {error info}"
 }
 ```
+---
+## Create item
+
+
+Url_endpoint: `http://127.0.0.1:5000/management/create-item`
+
+example payload:
+```json
+{
+    "name": "Item7",
+    "price": 31231.123,
+    "part_number": "p7",
+    "ean": "1234567891011",
+    "category": "",
+    "specs": {},
+    "stocks":2
+}
+
+```
+
+Expected response:
+
+1) Valid:
+```json
+{
+    "item": {
+        "name": "Item7",
+        "price": 31231.123,
+        "part_number": "p7",
+        "ean": 1234567891011.0,
+        "category": "",
+        "specs": {}
+    }
+}
+```
+2) Invalid: -> `HTTP 409`
+
+--
