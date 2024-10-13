@@ -7,8 +7,11 @@ from utils.validators.item_validators.price_validator import validate_price
 
 class BaseItemSchema(Schema):
     name = fields.String(required=True, validate=validate_item_name)
-    price = fields.Float(required=True, validate=validate_price)
     part_number = fields.String(required=True, validate=validate_part_number)
     ean = fields.String(required=True)
+
+
+class BaseItemDetailSchema(BaseItemSchema):
+    price = fields.Float(required=True, validate=validate_price)
     category = fields.String(required=True)
     specs = fields.Dict()
