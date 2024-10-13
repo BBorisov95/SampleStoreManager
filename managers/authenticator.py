@@ -18,7 +18,7 @@ class AuthenticatorManager:
         payload_data = {
             "sub": user.id,
             "exp": datetime.utcnow() + timedelta(days=5),
-            "role": user.role.name,
+            "role": user.role if isinstance(user.role, str) else user.role.name,
         }
         token = jwt.encode(
             payload=payload_data, key=config("secret_key"), algorithm="HS256"
@@ -38,7 +38,7 @@ class AuthenticatorManager:
             """
             raise BadRequest("Invalid credentials!")
         except Exception as e:
-            #TODO do not raise general exception
+            # TODO do not raise general exception
             raise e
 
 
