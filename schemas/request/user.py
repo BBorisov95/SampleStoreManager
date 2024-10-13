@@ -1,7 +1,8 @@
 from marshmallow import Schema, fields, validates_schema
-from utils.validators.pasword_validator import validate_password
-from utils.validators.name_validator import validate_name
-from utils.validators.mail_validator import email_validator
+
+from utils.validators.user_validators.mail_validator import email_validator
+from utils.validators.user_validators.name_validator import validate_name
+from utils.validators.user_validators.pasword_validator import validate_password
 
 
 class BaseUserSchema(Schema):
@@ -27,7 +28,7 @@ class UserRegisterSchema(UserLoginSchema):
         :param kwargs: required from decorator
         :return: None
         """
-        password = data.get('password')
-        first_name = data.get('first_name')
-        last_name = data.get('last_name')
+        password = data.get("password")
+        first_name = data.get("first_name")
+        last_name = data.get("last_name")
         validate_password(password=password, fn=first_name, ln=last_name)
