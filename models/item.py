@@ -1,8 +1,7 @@
 from sqlalchemy import JSON
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 
 from db import db
-from models.order import OrderModel
 
 
 class ItemModel(db.Model):
