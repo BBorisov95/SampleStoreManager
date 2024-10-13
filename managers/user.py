@@ -4,6 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from db import db
 from managers.authenticator import AuthenticatorManager
 from models import UserModel
+from utils.db_handler import do_commit
 
 
 class UserManager:
@@ -17,8 +18,7 @@ class UserManager:
             user_data["password"], method="pbkdf2:sha256"
         )
         user = UserModel(**user_data)
-        db.session.add(user)
-        db.session.flush()
+        do_commit(user)
         return AuthenticatorManager.encode_token(user)
 
     @staticmethod
