@@ -73,12 +73,12 @@ class ItemManager:
         :return:
         """
         items = db.session.execute(
-            db.select(ItemModel).filter_by(id=cat_name)
-        ).scalars()
+            db.select(ItemModel).filter_by(category=cat_name)
+        ).scalars().all()
 
         if not items:
             raise NotFound(
                 "The requested category does not exist or does not contain items!"
             )
 
-        a = 5  # TODO CHECK WHAT AND HOW TO RETURN
+        return items
