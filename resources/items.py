@@ -41,3 +41,18 @@ class GetItem(Resource):
             return {"item": ItemResponseManagersSchema().dump(requested_item)}, 200
         if user.role == UserRole.dispatcher:
             return {"item": ItemResponseDispatcherSchema().dump(requested_item)}, 200
+
+
+class GetItemsFromCategory(Resource):
+    @auth.login_required
+    def get(self, category_name: str):
+        user = auth.current_user()
+
+        requested_items_from_category = ItemManager.get_all_items_from_cat(category_name)
+
+        if user.role == UserRole.regular:
+            return {f"{category_name}_items": ItemResponseSchema().dump(requested_items_from_category, many=True)}, 200
+        if user.role == UserRole.manager:
+            return {f"{category_name}_items": ItemResponseManagersSchema().dump(requested_items_from_category, many=True)}, 200
+        if user.role == UserRole.dispatcher:
+            return {f"{category_name}_items": ItemResponseDispatcherSchema().dump(requested_items_from_category, many=True)}, 200
