@@ -4,8 +4,16 @@ from flask_restful import Resource
 from managers.authenticator import auth
 from managers.item import ItemManager
 from models.enums import UserRole
-from schemas.request.item import ItemCreationSchema
-from schemas.response.item import ItemResponseSchema, ItemResponseManagersSchema, ItemResponseDispatcherSchema
+from schemas.request.item import (
+    ItemCreationSchema,
+    ItemUpdateSchema,
+    ItemListRestocksSchema,
+)
+from schemas.response.item import (
+    ItemResponseSchema,
+    ItemResponseManagersSchema,
+    ItemResponseDispatcherSchema,
+)
 from utils.decorators import permission_required, validate_schema
 
 
@@ -48,11 +56,46 @@ class GetItemsFromCategory(Resource):
     def get(self, category_name: str):
         user = auth.current_user()
 
-        requested_items_from_category = ItemManager.get_all_items_from_cat(category_name)
+        requested_items_from_category = ItemManager.get_all_items_from_cat(
+            category_name
+        )
 
         if user.role == UserRole.regular:
-            return {f"{category_name}_items": ItemResponseSchema().dump(requested_items_from_category, many=True)}, 200
+            return {
+                f"{category_name}_items": ItemResponseSchema().dump(
+                    requested_items_from_category, many=True
+                )
+            }, 200
         if user.role == UserRole.manager:
-            return {f"{category_name}_items": ItemResponseManagersSchema().dump(requested_items_from_category, many=True)}, 200
+            return {
+                f"{category_name}_items": ItemResponseManagersSchema().dump(
+                    requested_items_from_category, many=True
+                )
+            }, 200
         if user.role == UserRole.dispatcher:
-            return {f"{category_name}_items": ItemResponseDispatcherSchema().dump(requested_items_from_category, many=True)}, 200
+            return {
+                f"{category_name}_items": ItemResponseDispatcherSchema().dump(
+                    requested_items_from_category, many=True
+                )
+            }, 200
+
+
+class UpdateItem(Resource):
+
+    @auth.login_required
+    @permission_required(UserRole.manager)
+    @validate_schema(ItemUpdateSchema)
+    def put(self):
+        data = request.get_json()
+        ItemManager.update_item_fields(data)
+        return {}, 201
+
+
+class RestockItems(Resource):
+    @auth.login_required
+    @permission_required(UserRole.manager)
+    @validate_schema(ItemListRestocksSchema)
+    def put(self):
+        data = request.get_json()
+        ItemManager.restock(data)
+        return {}, 201
