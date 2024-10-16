@@ -15,3 +15,12 @@ class BaseItemDetailSchema(BaseItemSchema):
     price = fields.Float(required=True, validate=validate_price)
     category = fields.String(required=True)
     specs = fields.Dict()
+
+
+class BaseUpdateItemSchema(Schema):
+    name = fields.String(required=False, validate=validate_item_name)
+    part_number = fields.String(required=False, validate=validate_part_number)
+    ean = fields.String(required=False)
+    price = fields.Float(required=False, validate=validate_price)
+    category = fields.String(required=False)
+    specs = fields.Dict()
