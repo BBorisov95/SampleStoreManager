@@ -7,12 +7,10 @@ class ItemResponseSchema(BaseItemDetailSchema):
     pass
 
 
-class ItemResponseManagersSchema(BaseItemDetailSchema):
+class ItemResponseDispatcherSchema(BaseItemSchema):
+    prod_id = fields.Integer(required=True)
 
-    id = fields.Integer(required=True)
+
+class ItemResponseManagersSchema(ItemResponseDispatcherSchema):
     stocks = fields.Integer(required=True)
     sold_pieces = fields.Integer(required=True)
-
-
-class ItemResponseDispatcherSchema(BaseItemSchema):
-    id = fields.Integer(required=True)
