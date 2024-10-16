@@ -52,8 +52,10 @@ class ItemManager:
         ).scalar()
         if not requested_item:
             ItemManager.raises_common_errors(NotFound, raises_for="item")
-        del data_to_change['prod_id']  # renamed schema's id field to prod_id to not shallow build in id
-        data_to_change['id'] = requested_item_id
+        del data_to_change[
+            "prod_id"
+        ]  # renamed schema's id field to prod_id to not shallow build in id
+        data_to_change["id"] = requested_item_id
         db.session.bulk_update_mappings(ItemModel, [data_to_change])
         db.session.flush()
 
@@ -64,9 +66,9 @@ class ItemManager:
         :param data: item data
         :return: none -> updated stock value of item
         """
-        for item in data.get('items'):
-            item_to_restock = ItemManager.get_item(item.get('prod_id'))
-            item_to_restock.stocks += item.get('stock')
+        for item in data.get("items"):
+            item_to_restock = ItemManager.get_item(item.get("prod_id"))
+            item_to_restock.stocks += item.get("stock")
         db.session.flush()
 
     @staticmethod
