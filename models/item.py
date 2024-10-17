@@ -11,6 +11,8 @@ class ItemModel(db.Model):
     price: Mapped[str] = mapped_column(db.Float(), nullable=False)
     part_number: Mapped[str] = mapped_column(db.String(32), nullable=False, unique=True)
     ean: Mapped[int] = mapped_column(db.String(13))
+    brand: Mapped[str] = mapped_column(db.String(32), nullable=False, default='dummy brand',
+                                       server_default='dummy brand')
     category: Mapped[str] = mapped_column(db.String(32), nullable=False)
     specs: Mapped[dict] = mapped_column(JSON, nullable=True)
     stocks: Mapped[int] = mapped_column(db.Integer(), nullable=False, default=0)
