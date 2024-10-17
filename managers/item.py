@@ -32,13 +32,42 @@ class ItemManager:
         db.session.flush()
 
     @staticmethod
-    def update_specs(item_id: str):
+    def update_specs(item_id: str, spec_dict: dict):
         """
         Trigger IceCat API endpoint to get specs
-        :param item_id:
+        :param item_id: internal product id
+        :param spec_dict: dict of specs
         :return: updated spec value of item in db
         """
-        ...
+        requested_item: ItemModel = db.session.execute(
+            db.select(ItemModel).filter_by(id=item_id)
+        ).scalar()
+        if not requested_item:
+            ItemManager.raises_common_errors(NotFound, raises_for="item")
+        try:
+            ean = spec_dict.get('ean')
+            del spec_dict['ean']  # no need to be in specs as well
+            category = spec_dict.get('category')
+            del spec_dict['category']  # no need to be in specs
+            name = spec_dict.get('name')
+            del spec_dict['name']  # no need to be in specs
+            part_number = spec_dict.get('Model')
+            del spec_dict['Model']
+            if ean:
+                requested_item.ean = ean
+            if category:
+                requested_item.category = category
+            if name:
+                requested_item.name = name
+            if part_number:
+                requested_item.part_number = part_number
+
+            requested_item.specs = spec_dict
+            db.session.add(requested_item)
+            db.session.flush()
+            return requested_item
+        except KeyError as ke:
+            raise KeyError(f'Invalid data received: {str(ke)}')
 
     @staticmethod
     def update_item_fields(data_to_change: dict):

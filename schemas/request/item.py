@@ -1,7 +1,7 @@
 from marshmallow import fields
 
 from schemas.base_item_schema import BaseItemDetailSchema, BaseUpdateItemSchema
-from utils.validators.item_validators.stock_validator import validate_stock
+from schemas.validators.item_validators.stock_validator import validate_stock
 
 
 class ItemCreationSchema(BaseItemDetailSchema):

@@ -5,7 +5,7 @@ class UserRole(Enum):
     regular = "User"
     manager = "Store Manager"
     dispatcher = "Dispatcher"
-    data_entry = "Data Entry Staff member"
+    data_entry = "Data Entry Staff member" # TODO FIND HOW TO MAKE IT WORKING
 
 
 class OrderStatus(Enum):

@@ -4,16 +4,20 @@ from flask_restful import Resource
 from managers.authenticator import auth
 from managers.item import ItemManager
 from models.enums import UserRole
+from models.user import UserModel
 from schemas.request.item import (
     ItemCreationSchema,
     ItemUpdateSchema,
     ItemListRestocksSchema,
 )
+from schemas.request.spec import SpecAddSchema
 from schemas.response.item import (
     ItemResponseSchema,
     ItemResponseManagersSchema,
     ItemResponseDispatcherSchema,
+    ItemResponseUpdateSpecSchema
 )
+from services.icecat.icecat_extractor import IceCatExtractor
 from utils.decorators import permission_required, validate_schema
 
 
@@ -89,6 +93,22 @@ class UpdateItem(Resource):
         data = request.get_json()
         ItemManager.update_item_fields(data)
         return {}, 201
+
+
+class UpdateSpecs(Resource):
+    @auth.login_required
+    @permission_required(UserRole.manager)  # TODO IF working to mode to data_entry
+    @validate_schema(SpecAddSchema)
+    def put(self):
+        data = request.get_json()
+        current_user: UserModel = auth.current_user()
+
+        spec_data = IceCatExtractor(**data).do_request()
+        updated_item = ItemManager.update_specs(data.get('internal_prod_id'), spec_data)
+        updated_by = f'{current_user.first_name} {current_user.last_name}'
+        schema_resp = ItemResponseUpdateSpecSchema().dump(updated_item)
+        return {"message": f"Item with id {schema_resp.get('id')} is updated by {updated_by}",
+                "specs": schema_resp}
 
 
 class RestockItems(Resource):
