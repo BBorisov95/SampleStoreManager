@@ -1,8 +1,8 @@
 from marshmallow import Schema, fields, validates_schema
 
-from utils.validators.user_validators.mail_validator import email_validator
-from utils.validators.user_validators.name_validator import validate_name
-from utils.validators.user_validators.pasword_validator import validate_password
+from schemas.validators.user_validators.mail_validator import email_validator
+from schemas.validators.user_validators.name_validator import validate_name
+from schemas.validators.user_validators.pasword_validator import validate_password
 
 
 class BaseUserSchema(Schema):
