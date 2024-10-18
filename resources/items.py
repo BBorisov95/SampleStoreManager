@@ -97,7 +97,7 @@ class UpdateItem(Resource):
 
 class UpdateSpecs(Resource):
     @auth.login_required
-    @permission_required(UserRole.manager)  # TODO IF working to mode to data_entry
+    @permission_required(UserRole.data_entry)
     @validate_schema(SpecAddSchema)
     def put(self):
         data = request.get_json()
