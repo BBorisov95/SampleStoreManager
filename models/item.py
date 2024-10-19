@@ -8,7 +8,7 @@ class ItemModel(db.Model):
     __tablename__ = "items"
     id: Mapped[int] = mapped_column(db.Integer(), primary_key=True)
     name: Mapped[str] = mapped_column(db.String(255), nullable=False)
-    price: Mapped[str] = mapped_column(db.Float(), nullable=False)
+    price: Mapped[float] = mapped_column(db.Float(), nullable=False)
     part_number: Mapped[str] = mapped_column(db.String(32), nullable=False, unique=True)
     ean: Mapped[int] = mapped_column(db.String(13))
     brand: Mapped[str] = mapped_column(db.String(32), nullable=False, default='dummy brand',
