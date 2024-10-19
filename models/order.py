@@ -1,18 +1,27 @@
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db import db
-from models.enums import OrderStatus
+from models.enums import OrderStatus, DeliveryType, PaymentStatus
 
 
 class OrderModel(db.Model):
     __tablename__ = "orders"
     id: Mapped[int] = mapped_column(db.Integer(), primary_key=True)
     customer_id: Mapped[int] = mapped_column(db.Integer(), nullable=False)
-    product_id: Mapped[int] = mapped_column(db.Integer(), nullable=False)
-    quantity: Mapped[int] = mapped_column(db.Integer(), nullable=False, default=1)
-    ship_to: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    to_country: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    to_city: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    to_zipcode: Mapped[str] = mapped_column(db.String(255), nullable=False)
     status: Mapped[OrderStatus] = mapped_column(
-        db.Enum(OrderStatus), nullable=False, default=OrderStatus.new.name
+        db.Enum(OrderStatus), nullable=False, default=OrderStatus.new
     )
-    #
-    # item: Mapped["ItemModel"] = relationship("ItemModel", back_populates="orders")
+    delivery_type: Mapped[DeliveryType] = mapped_column(
+        db.Enum(DeliveryType),
+        nullable=False,
+        default=DeliveryType.regular,
+    )
+    payment_status: Mapped[PaymentStatus] = mapped_column(
+        db.Enum(PaymentStatus),
+        nullable=False,
+        default=PaymentStatus.unpaid,
+    )
+    total_order: Mapped[float] = mapped_column(db.Float(), nullable=False, default=0)
