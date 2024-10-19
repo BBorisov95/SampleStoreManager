@@ -5,7 +5,7 @@ class UserRole(Enum):
     regular = "User"
     manager = "Store Manager"
     dispatcher = "Dispatcher"
-    data_entry = "Data Entry Staff member" # TODO FIND HOW TO MAKE IT WORKING
+    data_entry = "Data Entry Staff member"
 
 
 class OrderStatus(Enum):
@@ -13,3 +13,15 @@ class OrderStatus(Enum):
     dispatched = "The order is collected by dispatcher."
     shipped = "The order is shipped."
     received = "The order is received by customer."
+
+
+class DeliveryType(Enum):
+    regular = "From 4 to 5 days"
+    fast = "From 2 to 3 days"
+    express = "Next day delivery"
+
+
+class PaymentStatus(Enum):
+    unpaid = "The order is not paid!"
+    paid = "The order is successfully paid!"
+    refunded = "The order is refunded!"
