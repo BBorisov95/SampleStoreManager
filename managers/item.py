@@ -23,25 +23,21 @@ class ItemManager:
         :param item_id:
         :return: None
         """
-        requested_item = db.session.execute(
-            db.select(ItemModel).filter_by(id=item_id)
-        ).scalar()
+        requested_item: ItemModel = ItemManager.get_item(item_id)
         if not requested_item:
             ItemManager.raises_common_errors(NotFound, raises_for="item")
         db.session.delete(requested_item)
         db.session.flush()
 
     @staticmethod
-    def update_specs(item_id: str, spec_dict: dict):
+    def update_specs(item_id: int, spec_dict: dict):
         """
         Trigger IceCat API endpoint to get specs
         :param item_id: internal product id
         :param spec_dict: dict of specs
         :return: updated spec value of item in db
         """
-        requested_item: ItemModel = db.session.execute(
-            db.select(ItemModel).filter_by(id=item_id)
-        ).scalar()
+        requested_item: ItemModel = ItemManager.get_item(item_id)
         if not requested_item:
             ItemManager.raises_common_errors(NotFound, raises_for="item")
         try:
@@ -63,8 +59,7 @@ class ItemManager:
                 requested_item.part_number = part_number
 
             requested_item.specs = spec_dict
-            db.session.add(requested_item)
-            db.session.flush()
+            do_commit(requested_item)
             return requested_item
         except KeyError as ke:
             raise KeyError(f'Invalid data received: {str(ke)}')
@@ -76,9 +71,7 @@ class ItemManager:
         :return: None
         """
         requested_item_id = data_to_change.get("prod_id")
-        requested_item = db.session.execute(
-            db.select(ItemModel).filter_by(id=requested_item_id)
-        ).scalar()
+        requested_item: ItemModel = ItemManager.get_item(requested_item_id)
         if not requested_item:
             ItemManager.raises_common_errors(NotFound, raises_for="item")
         del data_to_change[
@@ -107,7 +100,7 @@ class ItemManager:
         :param item_id: item_id
         :return:
         """
-        item = db.session.execute(db.select(ItemModel).filter_by(id=item_id)).scalar()
+        item: ItemModel = db.session.execute(db.select(ItemModel).filter_by(id=item_id)).scalar()
 
         if not item:
             ItemManager.raises_common_errors(NotFound, "item")
@@ -115,6 +108,20 @@ class ItemManager:
             raise NotFound("The requested item is currently not available for sale!")
 
         return item
+
+    @staticmethod
+    def get_item_price(item_id: int):
+        """
+        Get product price
+        :param item_id: product_id
+        :return: product price -> float
+        """
+        item: ItemModel = ItemManager.get_item(item_id)
+
+        if not item:
+            ItemManager.raises_common_errors(NotFound, "item")
+
+        return item.price
 
     @staticmethod
     def get_all_items_from_cat(cat_name: str):
@@ -133,6 +140,17 @@ class ItemManager:
             ItemManager.raises_common_errors(NotFound, "category")
 
         return items
+
+    @staticmethod
+    def increase_sold_pcs(item_obj: ItemModel, sold_pcs: int):
+        """
+        Increase the sold pcs of the itm_obj
+        :param item_obj: ItemModel object
+        :param sold_pcs: number of sold pcs
+        :return: None
+        """
+        item_obj.sold_pieces += sold_pcs
+        do_commit(item_obj)
 
     @staticmethod
     def raises_common_errors(error_to_raise: werkzeug_exceptions, raises_for: str):
