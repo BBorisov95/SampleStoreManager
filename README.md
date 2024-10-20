@@ -374,6 +374,7 @@ Expected response:
     "all_orders": [
         {
             "id": 59,
+            "delivery_to" : {},
             "status": "Waiting to process the order.",
             "delivery_type": "From 4 to 5 days",
             "payment_status": "The order is not paid!",
@@ -381,6 +382,7 @@ Expected response:
         },
         {
             "id": 60,
+            "delivery_to" : {},
             "status": "Waiting to process the order.",
             "delivery_type": "From 2 to 3 days",
             "payment_status": "The order is not paid!",
@@ -388,6 +390,7 @@ Expected response:
         },
         {
             "id": 61,
+            "delivery_to" : {},
             "status": "Waiting to process the order.",
             "delivery_type": "Next day delivery",
             "payment_status": "The order is not paid!",
