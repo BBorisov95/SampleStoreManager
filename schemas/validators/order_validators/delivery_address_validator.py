@@ -13,12 +13,12 @@ def validate_country(country: str):
     :return: raises BadRequest or None
     """
     is_empty_string(country, "Country")
-    allowed_countries = CountryManager.get_all_allowed_countries(
+    allowed_countries = list(CountryManager.get_all_allowed_countries(
         return_only_country_name=True
-    )
-    if country.title() not in list(allowed_countries):
+    ))
+    if country.title() not in allowed_countries:
         raise BadRequest(
-            f'Sorry we cannot deliver your order to {country}. Currently we can deliver only to: {",".join([c.title() for c in allowed_countries])}'
+            f'Sorry we cannot deliver your order to {country}. Currently we can deliver only to: {", ".join([c.title() for c in allowed_countries])}'
         )
 
 
