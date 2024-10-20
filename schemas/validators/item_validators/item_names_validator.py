@@ -1,4 +1,4 @@
-from schemas.validators.item_validators.empty_string_checker import is_empty_string
+from schemas.validators.empty_string_checker import is_empty_string
 
 
 def validate_item_name(item_name: str):

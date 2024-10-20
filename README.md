@@ -1,5 +1,5 @@
 
-1) [Example Endpoints](#example-endpoints)
+1) [Endpoints](#endpoints)
    1) [Register](#register)
    2) [Login](#login)
    3) [Create Item](#create-item)
@@ -9,8 +9,9 @@
    7) [Update Fields](#update-fields)
    8) [Items restock](#items-restock)
    9) [Spec Update](#spec-update)
+   10) [Countries](#counties)
 
-## Example endpoints
+## Endpoints
 
 ### Register
 
@@ -283,3 +284,198 @@ Expected output:
 1) Valid -> json response with `kvp`
 2) Invalid -> Different STRING information about 3p provider status: `TimeOutError`, `change_ean`, `Full IceCat Required`
 ---
+
+### Orders
+
+The following section describe the orders endpoints and how to be used.
+
+1) PlaceOrder
+
+`url_endpoint`: `http://127.0.0.1:5000/item/purchase`
+
+`method`: `post`
+`access`: `private` Only logged in users can make an order.
+
+payload:
+
+```json
+{
+  "items": [
+    {
+        "prod_id": 1,
+        "quantity": 1
+    },
+    {
+        "prod_id": 25,
+        "quantity": 1
+    }
+  ],
+   "delivery_address": {
+        "to_country": "Bulgaria",
+        "to_city": "Sofia",
+        "to_zipcode": "BGR:1000",
+        "to_street_address": "Opulchenska",
+        "to_building_number": 6
+   },
+   "delivery_type": "regular"
+}
+
+```
+
+* Expected Responses:
+
+  1) Valid
+   ```json
+   {
+       "order": {
+           "id": 57,
+           "status": "Waiting to process the order.",
+           "delivery_type": "From 4 to 5 days",
+           "payment_status": "The order is not paid!",
+           "total_order": 31432.123
+       }
+   }
+   ```
+   2) Invalid:
+   
+   An order can be invalid if any of the items are invalid.
+   
+  ```json
+   {
+       "message": "The item which you search is not existing!"
+   }
+
+   ```
+
+   Or if the ` "delivery_address": {
+           "to_country": }}` is not valid. (Check [Countries](#counties) )
+   
+   Return a json info msg.
+   ```json
+   {
+       "message": "Sorry we cannot deliver your order to Costa Ricka. Currently we can deliver only to: Bulgaria, Greece"
+   }
+   ```
+
+2) Get orders
+
+Get current user all successfully placed orders.
+
+`url_endpoint`: `http://127.0.0.1:5000/get-orders`
+
+`method`: `GET`
+
+`access`: `private` Only logged users can access it.
+
+
+Expected response:
+```json
+{
+    "all_orders": [
+        {
+            "id": 59,
+            "status": "Waiting to process the order.",
+            "delivery_type": "From 4 to 5 days",
+            "payment_status": "The order is not paid!",
+            "total_order": 31432.123
+        },
+        {
+            "id": 60,
+            "status": "Waiting to process the order.",
+            "delivery_type": "From 2 to 3 days",
+            "payment_status": "The order is not paid!",
+            "total_order": 31432.123
+        },
+        {
+            "id": 61,
+            "status": "Waiting to process the order.",
+            "delivery_type": "Next day delivery",
+            "payment_status": "The order is not paid!",
+            "total_order": 31432.123
+        }
+    ]
+}
+```
+
+---
+
+### Counties
+
+Allowed countries are the places which we can operate on. An order can be placed only in this countries.
+
+Each country has `name` and `prefix`
+
+
+`url_endpoint`: `http://127.0.0.1:5000/show-countries`
+
+`method`: `GET`
+`access`: `public` everyone can access it.
+
+Expected Response:
+
+```json
+{
+    "countries": {
+        "allowed_countries_to_deliver": {
+            "Bulgaria": "BGR",
+            "Greece": "GRC"
+        }
+    }
+}
+```
+
+### Create Country
+
+Create a new country where the system can operate. Here we set the currency and the prices for the different type of deliveries.
+
+`url_endpoint`: `http://127.0.0.1:5000/management/create-country`
+
+`method`: `POST`
+
+`access`: `private` only managers can create new records.
+
+Example payload:
+
+```json
+{
+    "country_name": "Greece",
+    "prefix": "GRC",
+    "regular_delivery_price": 10,
+    "fast_delivery_price": 20,
+    "express_delivery_price": 45.99,
+    "currency": "EURO"
+}
+
+```
+
+Response -> `{}, 201`
+
+### Update Country delivery Taxes
+
+Update the country delivery fees.
+
+`url_endpoint`: `http://127.0.0.1:5000/management/update-country-taxes`
+
+`method`: `PUT`
+
+`access`: private only manages can access it.
+
+Example payload:
+```json
+
+{
+    "country_name": "Greece",
+    "prefix": "GRC",
+    "regular_delivery_price": 15,
+    "fast_delivery_price": 25.9,
+    "express_delivery_price": 65.99,
+    "currency": "EURO"
+}
+
+```
+
+Expected response: `{}, 201`
+
+
+
+
