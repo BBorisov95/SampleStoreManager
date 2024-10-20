@@ -2,6 +2,7 @@ from werkzeug.exceptions import NotFound
 
 from db import db
 from managers.item import ItemManager
+from managers.country import CountryManager
 from models.client_basket import ClientBasket
 from models.enums import OrderStatus
 from models.order import OrderModel
@@ -24,7 +25,15 @@ class OrderManager:
         :return: OrderModel
         """
         to_insert_order_data: dict = {"customer_id": user_obj.id}
-        to_insert_order_data.update(**order_data.get("delivery_address"))
+        delivery_info = order_data.get("delivery_address")
+        deliver_to_country = delivery_info.get("to_country")
+        delivery_type = order_data.get("delivery_type")
+        delivery_tax = CountryManager.get_delivery_tax(
+            deliver_to_country, delivery_type
+        )
+        to_insert_order_data.update({"payment_for_shipping": delivery_tax})
+
+        to_insert_order_data.update(**delivery_info)
         new_order: OrderModel = OrderModel(**to_insert_order_data)
         do_commit(new_order)
         order_id = new_order.id
