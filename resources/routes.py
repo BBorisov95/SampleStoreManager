@@ -9,7 +9,7 @@ from resources.items import (
     RestockItems,
     UpdateSpecs,
 )
-from resources.orders import PlaceOrder
+from resources.orders import PlaceOrder, GetOrders
 
 routes = (
     (RegisterUser, "/register"),
@@ -25,4 +25,5 @@ routes = (
     (CountiesCreate, "/management/create-country"),
     (CountiesUpdate, "/management/update-country-taxes"),
     (PlaceOrder, "/item/purchase"),
+    (GetOrders, "/get-orders"),
 )
