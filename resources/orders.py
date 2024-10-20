@@ -18,3 +18,12 @@ class PlaceOrder(Resource):
         current_user: UserModel = auth.current_user()
         order: OrderManager = OrderManager.place_order(current_user, data)
         return {"order": OrderResponseSchema().dump(order)}, 201
+
+
+class GetOrders(Resource):
+
+    @auth.login_required
+    def get(self):
+        current_user: UserModel = auth.current_user()
+        orders: list[OrderManager] = OrderManager.get_all_my_orders(current_user.id)
+        return {'all_orders': OrderResponseSchema().dump(orders, many=True)}, 200
