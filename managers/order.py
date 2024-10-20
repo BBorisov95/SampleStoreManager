@@ -24,6 +24,24 @@ class OrderManager:
         :param order_data: dict with info
         :return: OrderModel
         """
+        baskets = []
+        total_price = 0
+
+        for item in order_data.get("items"):
+            item_id = item.get("prod_id")
+            item_quantity = item.get("quantity")
+            item_obj = ItemManager.get_item(item_id)
+            item_price: float = item_obj.price
+            ItemManager.increase_sold_pcs(item_obj, item_quantity)
+
+            basket = ClientBasket(
+                product_id=item_id,
+                quantity=item_quantity,
+                product_sold_price=item_price
+            )
+            total_price += item_price
+            baskets.append(basket)
+
         to_insert_order_data: dict = {"customer_id": user_obj.id}
         delivery_info = order_data.get("delivery_address")
         deliver_to_country = delivery_info.get("to_country")
@@ -35,25 +53,11 @@ class OrderManager:
 
         to_insert_order_data.update(**delivery_info)
         new_order: OrderModel = OrderModel(**to_insert_order_data)
+        new_order.total_order = total_price
         do_commit(new_order)
-        order_id = new_order.id
-
-        for item in order_data.get("items"):
-            item_id = item.get("prod_id")
-            item_quantity = item.get("quantity")
-            item_obj = ItemManager.get_item(item_id)
-            item_price: float = item_obj.price
-            ItemManager.increase_sold_pcs(item_obj, item_quantity)
-
-            basket: ClientBasket = ClientBasket()
-            basket.order_id = order_id
-            basket.product_id = item_id
-            basket.quantity = item_quantity
-            basket.product_sold_price = item_price
-
-            new_order.total_order += item_price
-            do_commit(basket)
-
+        for basket in baskets:
+            basket.order_id = new_order.id
+            db.session.add(basket)
         user_obj.number_of_orders += 1
         do_commit(user_obj)
         return new_order
@@ -69,3 +73,10 @@ class OrderManager:
 
         requested_order.status = change_status_to
         do_commit(requested_order)
+
+    @staticmethod
+    def get_all_my_orders(user_id: int):
+        all_orders = db.session.execute(db.select(OrderModel).filter_by(customer_id=user_id)).scalars()
+        if not all_orders:
+            raise NotFound(f'No orders found!')
+        return all_orders
