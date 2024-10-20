@@ -2,13 +2,8 @@ import re
 
 from werkzeug.exceptions import BadRequest
 
-from resources.allowed_countries import ALLOWED_COUNTRIES
 from schemas.validators.empty_string_checker import is_empty_string
-
-POSTAL_CODE_MAP_VALIDATORS = {
-    "bgr": lambda postal_code: bool(re.match(r"\d{4}", postal_code)),
-    #TODO MAKE IT A DB element
-}
+from managers.country import CountryManager
 
 
 def validate_country(country: str):
@@ -18,9 +13,12 @@ def validate_country(country: str):
     :return: raises BadRequest or None
     """
     is_empty_string(country, "Country")
-    if country.lower() not in ALLOWED_COUNTRIES.keys():
+    allowed_countries = CountryManager.get_all_allowed_countries(
+        return_only_country_name=True
+    )
+    if country.title() not in list(allowed_countries):
         raise BadRequest(
-            f'Sorry we cannot deliver your order to {country}. Currently we can deliver only to: {",".join([c.title() for c in ALLOWED_COUNTRIES.keys()])}'
+            f'Sorry we cannot deliver your order to {country}. Currently we can deliver only to: {",".join([c.title() for c in allowed_countries])}'
         )
 
 
@@ -44,7 +42,7 @@ def validate_postal_code(postal_code: str):
 
     try:
         prefix, code = postal_code.split(":")
-        is_valid = POSTAL_CODE_MAP_VALIDATORS[prefix.lower()](code)
+        is_valid = re.findall(r"\d+", code)
         if not is_valid:
             raise BadRequest(f"Postal Code is not valid!")
     except ValueError:
