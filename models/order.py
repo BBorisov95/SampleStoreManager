@@ -11,6 +11,9 @@ class OrderModel(db.Model):
     to_country: Mapped[str] = mapped_column(db.String(255), nullable=False)
     to_city: Mapped[str] = mapped_column(db.String(255), nullable=False)
     to_zipcode: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    to_street_address: Mapped[str] = mapped_column(db.String(255), nullable=False)
+    to_building_number: Mapped[int] = mapped_column(db.Integer(), nullable=False)
+    payment_for_shipping: Mapped[float] = mapped_column(db.Float(), nullable=False)
     status: Mapped[OrderStatus] = mapped_column(
         db.Enum(OrderStatus), nullable=False, default=OrderStatus.new
     )
