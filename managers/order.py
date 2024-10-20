@@ -4,7 +4,7 @@ from db import db
 from managers.item import ItemManager
 from managers.country import CountryManager
 from models.client_basket import ClientBasket
-from models.enums import OrderStatus
+from models.enums import OrderStatus, DeliveryType
 from models.order import OrderModel
 from models.user import UserModel
 from utils.db_handler import do_commit
@@ -54,6 +54,8 @@ class OrderManager:
         to_insert_order_data.update(**delivery_info)
         new_order: OrderModel = OrderModel(**to_insert_order_data)
         new_order.total_order = total_price
+        if hasattr(DeliveryType, delivery_type):
+            new_order.delivery_type = getattr(DeliveryType, delivery_type)
         do_commit(new_order)
         for basket in baskets:
             basket.order_id = new_order.id
