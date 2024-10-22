@@ -10,6 +10,8 @@
    8) [Items restock](#items-restock)
    9) [Spec Update](#spec-update)
    10) [Countries](#counties)
+2) [IceCat](#ice-cat)
+2) [Discoed](#discord)
 
 ## Endpoints
 
@@ -479,6 +481,18 @@ Example payload:
 
 Expected response: `{}, 201`
 
+---
+
+### IceCat
 
 
+---
 
+### Discord
+
+
+Basic script which send massages to chanel regarding order statuses.
+
+bot_id and chanel_id must be set as env
+
+---
