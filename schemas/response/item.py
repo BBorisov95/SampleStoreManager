@@ -1,6 +1,10 @@
 from marshmallow import fields
 
-from schemas.base_item_schema import BaseItemSchema, BaseItemDetailSchema, BaseUpdateItemSchema
+from schemas.base_item_schema import (
+    BaseItemSchema,
+    BaseItemDetailSchema,
+    BaseUpdateItemSchema,
+)
 
 
 class ItemResponseSchema(BaseItemDetailSchema):

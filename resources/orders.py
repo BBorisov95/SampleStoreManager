@@ -26,4 +26,4 @@ class GetOrders(Resource):
     def get(self):
         current_user: UserModel = auth.current_user()
         orders: list[OrderManager] = OrderManager.get_all_my_orders(current_user.id)
-        return {'all_orders': OrderResponseSchema().dump(orders, many=True)}, 200
+        return {"all_orders": OrderResponseSchema().dump(orders, many=True)}, 200

@@ -15,7 +15,7 @@ from schemas.response.item import (
     ItemResponseSchema,
     ItemResponseManagersSchema,
     ItemResponseDispatcherSchema,
-    ItemResponseUpdateSpecSchema
+    ItemResponseUpdateSpecSchema,
 )
 from services.icecat.icecat_extractor import IceCatExtractor
 from utils.decorators import permission_required, validate_schema
@@ -104,11 +104,13 @@ class UpdateSpecs(Resource):
         current_user: UserModel = auth.current_user()
 
         spec_data = IceCatExtractor(**data).do_request()
-        updated_item = ItemManager.update_specs(data.get('internal_prod_id'), spec_data)
-        updated_by = f'{current_user.first_name} {current_user.last_name}'
+        updated_item = ItemManager.update_specs(data.get("internal_prod_id"), spec_data)
+        updated_by = f"{current_user.first_name} {current_user.last_name}"
         schema_resp = ItemResponseUpdateSpecSchema().dump(updated_item)
-        return {"message": f"Item with id {schema_resp.get('id')} is updated by {updated_by}",
-                "specs": schema_resp}, 201
+        return {
+            "message": f"Item with id {schema_resp.get('id')} is updated by {updated_by}",
+            "specs": schema_resp,
+        }, 201
 
 
 class RestockItems(Resource):
