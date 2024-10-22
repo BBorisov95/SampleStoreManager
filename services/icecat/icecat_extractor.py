@@ -4,7 +4,15 @@ from requests.exceptions import ConnectionError, Timeout
 
 class IceCatExtractor:
 
-    def __init__(self, brand: str, product_code: str, ean: int or None = None, use_paid_account: bool = False, *args, **kwargs):
+    def __init__(
+        self,
+        brand: str,
+        product_code: str,
+        ean: int or None = None,
+        use_paid_account: bool = False,
+        *args,
+        **kwargs,
+    ):
         self.s: requests = requests.Session()
         self.use_paid_account = use_paid_account
         self.user_name: str = self.use_paid_account[0]
@@ -29,7 +37,7 @@ class IceCatExtractor:
     def user_name(self, value):
         value = value.strip()
         if not value:
-            self.__user_name = 'openIcecat'
+            self.__user_name = "openIcecat"
             self.use_paid_account = False
         else:
             self.__user_name = value
@@ -62,7 +70,6 @@ class IceCatExtractor:
         if json_response:
             return self.extract_json_response_info(json_response)
 
-
     def extract_json_response_info(self, json_object: dict):
         json_obj_general_info = json_object.get("data").get("GeneralInfo")
         ice_cat_category = (
@@ -77,7 +84,7 @@ class IceCatExtractor:
             "Model": model,
             "ean": ean,
             "name": product_name,
-            "category": ice_cat_category
+            "category": ice_cat_category,
         }
 
         if ice_cat_category == "Laptops":
