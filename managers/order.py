@@ -69,13 +69,11 @@ class OrderManager:
     @staticmethod
     def change_order_status(order_id: int, change_status_to: OrderStatus):
 
-        requested_order: OrderModel = db.session(
-            db.select(OrderModel).filder_by(id=order_id)
-        ).scalar()
+        requested_order: OrderModel = OrderManager.get_specific_order(order_id)
         if not requested_order:
             raise NotFound(f"Order with id {order_id} not found!")
 
-        requested_order.status = change_status_to
+        requested_order.status = change_status_to.name
         do_commit(requested_order)
 
     @staticmethod
@@ -121,7 +119,9 @@ class OrderManager:
             .join(ItemModel, ClientBasket.product_id == ItemModel.id)
             .filter(OrderModel.id == order_id)
         )
-        all_items: list[tuple[ItemModel, ClientBasket]] = db.session.execute(query).all()
+        all_items: list[tuple[ItemModel, ClientBasket]] = db.session.execute(
+            query
+        ).all()
         return all_items
 
     @staticmethod
