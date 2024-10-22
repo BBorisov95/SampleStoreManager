@@ -8,6 +8,8 @@ from models.enums import OrderStatus
 from models.client_basket import ClientBasket
 from models.item import ItemModel
 
+from services.discord.discord_bot import DiscordBot
+
 
 class DispatcherManager:
 
@@ -62,12 +64,28 @@ class DispatcherManager:
         if order.status == OrderStatus.dispatched:
             raise BadRequest(f"Order {order_id} already dispatched!")
         order_elements: list[tuple] = OrderManager.get_items_of_order(order_id)
-        for item, sold_pcs in order_elements:
-            DispatcherManager.reduce_item_quantity(item, sold_pcs)
 
-        order.status = OrderStatus.dispatched
-        db.session.add(order)
-        db.session.flush()
+        try:
+            for item, sold_pcs in order_elements:
+                DispatcherManager.reduce_item_quantity(item, sold_pcs)
+
+            order.status = OrderStatus.dispatched
+            db.session.add(order)
+            db.session.flush()
+            DiscordBot().send_msg(order_id)
+        except BadRequest as be:
+            db.session.rollback()
+            raise be
+
+    @staticmethod
+    def approve_order_as_shipped(order_id: int):
+        """
+        Assume that all items are collected and can be marked as shipped
+        :return:
+        """
+        OrderManager.change_order_status(
+            order_id=order_id, change_status_to=OrderStatus.shipped
+        )
 
     @staticmethod
     def reduce_item_quantity(prod: ItemModel, required_quantity: int):
