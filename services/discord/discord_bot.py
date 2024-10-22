@@ -18,7 +18,7 @@ class DiscordBot:
     def send_msg(self, order_id: int):
         json_payload = {
             "content": f"Order ID: {order_id} is collected and dispatched to desired location."
-                       f" By making PUT request on this link: {config('dns')}:/dispatcher/approve-shipped/{order_id} you will changed the order status to shipped!",
+            f" By making PUT request on this link: {config('dns')}:/dispatcher/approve-shipped/{order_id} you will changed the order status to shipped!",
         }
         requests.post(
             f"https://discord.com/api/v9/channels/{self.channel_id}/messages",

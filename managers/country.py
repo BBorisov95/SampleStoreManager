@@ -17,16 +17,13 @@ class CountryManager:
         """
 
         country: CountryModel = db.session.execute(
-            db.select(CountryModel).filter_by(
-                country_name=country
-            )
+            db.select(CountryModel).filter_by(country_name=country)
         ).scalar()
         if not country:
             raise NotFound("Invalid country!")
-        delivery_type = delivery_type + '_delivery_price'
+        delivery_type = delivery_type + "_delivery_price"
         if hasattr(country, delivery_type):
             return getattr(country, delivery_type)
-
 
     @staticmethod
     def get_all_allowed_countries(return_only_country_name: bool = False) -> list:
