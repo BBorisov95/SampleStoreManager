@@ -40,3 +40,11 @@ class GetOrdersForDispatch(Resource):
                 all_orders, many=True
             )
         }, 200
+
+
+class MarkOrderAsShipped(Resource):
+
+    @auth.login_required
+    @permission_required(UserRole.dispatcher)
+    def put(self, order_id: int):
+        DispatcherManager.approve_order_as_shipped(order_id)
