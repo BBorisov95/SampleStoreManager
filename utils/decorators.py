@@ -10,6 +10,7 @@ def validate_schema(schema_name):
         def wrapper(*args, **kwargs):
             schema: Schema = schema_name()
             data = request.get_json()
+            data['last_update_by'] = auth.current_user().id
             errors = schema.validate(data)
             if errors:
                 raise BadRequest(f"Invalid payload {errors}")

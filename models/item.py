@@ -1,4 +1,5 @@
-from sqlalchemy import JSON
+from datetime import datetime
+from sqlalchemy import JSON, func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db import db
@@ -21,3 +22,8 @@ class ItemModel(db.Model):
     specs: Mapped[dict] = mapped_column(JSON, nullable=True)
     stocks: Mapped[int] = mapped_column(db.Integer(), nullable=False, default=0)
     sold_pieces: Mapped[int] = mapped_column(db.Integer(), nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(db.DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(db.DateTime, server_default=func.now())
+    last_update_by: Mapped[int] = mapped_column(
+        db.Integer(), db.ForeignKey("users.id")
+    )

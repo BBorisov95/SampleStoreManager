@@ -61,7 +61,7 @@ class CountryManager:
         :param new_taxes: new records data
         :return: None or 404
         """
-        country: db.Model = db.session.execute(
+        country: CountryModel = db.session.execute(
             db.select(CountryModel).filter_by(
                 country_name=new_taxes.get("country_name")
             )
@@ -76,6 +76,7 @@ class CountryManager:
             country.express_delivery_price = new_taxes.get(
                 "express_delivery_price", country.express_delivery_price
             )
+            country.last_update_by = new_taxes.get('last_update_by')
             db.session.flush()
         else:
             raise NotFound("Country not found in db records!")

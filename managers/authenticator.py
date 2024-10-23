@@ -17,7 +17,7 @@ class AuthenticatorManager:
     def encode_token(user):
         payload_data = {
             "sub": user.id,
-            "exp": datetime.utcnow() + timedelta(days=5),
+            "exp": datetime.utcnow() + timedelta(days=30), # TODO ONLY FOR TESTING!
             "role": user.role if isinstance(user.role, str) else user.role.name,
         }
         token = jwt.encode(

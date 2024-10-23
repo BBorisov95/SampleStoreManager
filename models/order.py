@@ -32,3 +32,8 @@ class OrderModel(db.Model):
     )
     total_order: Mapped[float] = mapped_column(db.Float(), nullable=False, default=0)
     created_at: Mapped[datetime] = mapped_column(db.DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(db.DateTime, server_default=func.now())
+    last_update_by: Mapped[int] = mapped_column(
+        db.Integer(), db.ForeignKey("users.id"),
+    )
+

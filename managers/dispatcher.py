@@ -58,6 +58,7 @@ class DispatcherManager:
     @staticmethod
     def dispatch_item(order_data: dict):
         order_id = order_data.get("order_id")
+        last_updated_by = order_data.get('last_update_by')
         order = OrderManager.get_specific_order(order_id)
         if not order:
             raise NotFound(f"Order with id: {order_id} not found!")
@@ -67,9 +68,10 @@ class DispatcherManager:
 
         try:
             for item, sold_pcs in order_elements:
-                DispatcherManager.reduce_item_quantity(item, sold_pcs)
+                DispatcherManager.reduce_item_quantity(item, sold_pcs, last_updated_by)
 
             order.status = OrderStatus.dispatched
+            order.last_update_by = last_updated_by
             db.session.add(order)
             db.session.flush()
             DiscordBot().send_msg(order_id)
@@ -78,17 +80,18 @@ class DispatcherManager:
             raise be
 
     @staticmethod
-    def approve_order_as_shipped(order_id: int):
+    def approve_order_as_shipped(order_id: int, user_id: int):
         """
         Assume that all items are collected and can be marked as shipped
         :return:
         """
         OrderManager.change_order_status(
-            order_id=order_id, change_status_to=OrderStatus.shipped
+            order_id=order_id, change_status_to=OrderStatus.shipped,
+            modify_by=user_id
         )
 
     @staticmethod
-    def reduce_item_quantity(prod: ItemModel, required_quantity: int):
+    def reduce_item_quantity(prod: ItemModel, required_quantity: int, last_updated_by: int):
         """
         If item is collected by dispatcher
         reduce stocks in warehouse
@@ -105,3 +108,4 @@ class DispatcherManager:
                 f" We have {prod.stocks} out of {required_quantity} pcs."
             )
         prod.stocks -= required_quantity
+        prod.last_update_by = last_updated_by
