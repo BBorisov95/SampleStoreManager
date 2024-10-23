@@ -67,13 +67,14 @@ class OrderManager:
         return new_order
 
     @staticmethod
-    def change_order_status(order_id: int, change_status_to: OrderStatus):
+    def change_order_status(order_id: int, change_status_to: OrderStatus, modify_by: int):
 
         requested_order: OrderModel = OrderManager.get_specific_order(order_id)
         if not requested_order:
             raise NotFound(f"Order with id {order_id} not found!")
 
         requested_order.status = change_status_to.name
+        requested_order.last_update_by = modify_by
         do_commit(requested_order)
 
     @staticmethod
