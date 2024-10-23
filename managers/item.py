@@ -42,6 +42,11 @@ class ItemManager:
             ItemManager.raises_common_errors(NotFound, raises_for="item")
         try:
             ean = spec_dict.get("ean")
+            if isinstance(ean, list):
+                """
+                ean is returned as str or None
+                """
+                ean = ean[0]
             del spec_dict["ean"]  # no need to be in specs as well
             category = spec_dict.get("category")
             del spec_dict["category"]  # no need to be in specs
