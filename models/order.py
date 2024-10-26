@@ -1,3 +1,6 @@
+from datetime import datetime
+
+from sqlalchemy import func
 from sqlalchemy.orm import Mapped, mapped_column
 
 from db import db
@@ -28,3 +31,9 @@ class OrderModel(db.Model):
         default=PaymentStatus.unpaid,
     )
     total_order: Mapped[float] = mapped_column(db.Float(), nullable=False, default=0)
+    created_at: Mapped[datetime] = mapped_column(db.DateTime, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(db.DateTime, server_default=func.now())
+    last_update_by: Mapped[int] = mapped_column(
+        db.Integer(), db.ForeignKey("users.id"),
+    )
+

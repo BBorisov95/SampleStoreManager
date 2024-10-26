@@ -10,6 +10,7 @@ from resources.items import (
     UpdateSpecs,
 )
 from resources.orders import PlaceOrder, GetOrders
+from resources.dispatcher import DispatchItem, GetOrdersForDispatch, MarkOrderAsShipped
 
 routes = (
     (RegisterUser, "/register"),
@@ -26,4 +27,7 @@ routes = (
     (CountiesUpdate, "/management/update-country-taxes"),
     (PlaceOrder, "/item/purchase"),
     (GetOrders, "/get-orders"),
+    (GetOrdersForDispatch, "/dispatcher/get-orders"),
+    (DispatchItem, "/dispatcher/dispatch"),
+    (MarkOrderAsShipped, "/dispatcher/approve-shipped/<int:order_id>"),
 )

@@ -17,16 +17,13 @@ class CountryManager:
         """
 
         country: CountryModel = db.session.execute(
-            db.select(CountryModel).filter_by(
-                country_name=country
-            )
+            db.select(CountryModel).filter_by(country_name=country)
         ).scalar()
         if not country:
             raise NotFound("Invalid country!")
-        delivery_type = delivery_type + '_delivery_price'
+        delivery_type = delivery_type + "_delivery_price"
         if hasattr(country, delivery_type):
             return getattr(country, delivery_type)
-
 
     @staticmethod
     def get_all_allowed_countries(return_only_country_name: bool = False) -> list:
@@ -64,7 +61,7 @@ class CountryManager:
         :param new_taxes: new records data
         :return: None or 404
         """
-        country: db.Model = db.session.execute(
+        country: CountryModel = db.session.execute(
             db.select(CountryModel).filter_by(
                 country_name=new_taxes.get("country_name")
             )
@@ -79,6 +76,7 @@ class CountryManager:
             country.express_delivery_price = new_taxes.get(
                 "express_delivery_price", country.express_delivery_price
             )
+            country.last_update_by = new_taxes.get('last_update_by')
             db.session.flush()
         else:
             raise NotFound("Country not found in db records!")

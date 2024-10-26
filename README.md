@@ -10,6 +10,8 @@
    8) [Items restock](#items-restock)
    9) [Spec Update](#spec-update)
    10) [Countries](#counties)
+2) [IceCat](#ice-cat)
+2) [Discoed](#discord)
 
 ## Endpoints
 
@@ -374,6 +376,7 @@ Expected response:
     "all_orders": [
         {
             "id": 59,
+            "delivery_to" : {},
             "status": "Waiting to process the order.",
             "delivery_type": "From 4 to 5 days",
             "payment_status": "The order is not paid!",
@@ -381,6 +384,7 @@ Expected response:
         },
         {
             "id": 60,
+            "delivery_to" : {},
             "status": "Waiting to process the order.",
             "delivery_type": "From 2 to 3 days",
             "payment_status": "The order is not paid!",
@@ -388,6 +392,7 @@ Expected response:
         },
         {
             "id": 61,
+            "delivery_to" : {},
             "status": "Waiting to process the order.",
             "delivery_type": "Next day delivery",
             "payment_status": "The order is not paid!",
@@ -476,6 +481,18 @@ Example payload:
 
 Expected response: `{}, 201`
 
+---
+
+### IceCat
 
 
+---
 
+### Discord
+
+
+Basic script which send massages to chanel regarding order statuses.
+
+bot_id and chanel_id must be set as env
+
+---

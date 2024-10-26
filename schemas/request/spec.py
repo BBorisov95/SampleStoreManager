@@ -1,6 +1,8 @@
 from marshmallow import Schema, fields
 
-from schemas.validators.item_validators.part_number_validator import validate_part_number
+from schemas.validators.item_validators.part_number_validator import (
+    validate_part_number,
+)
 
 
 class SpecAddSchema(Schema):

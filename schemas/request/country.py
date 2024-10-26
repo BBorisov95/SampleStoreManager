@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, post_load
 
 
 class CountryCreateAndUpdateSchema(Schema):
@@ -8,3 +8,4 @@ class CountryCreateAndUpdateSchema(Schema):
     fast_delivery_price = fields.Float(required=True, validate=lambda x: x >= 0)
     express_delivery_price = fields.Float(required=True, validate=lambda x: x >= 0)
     currency = fields.String(required=True, validate=lambda x: 3 <= len(x) <= 5)
+    last_update_by = fields.Integer(required=True)

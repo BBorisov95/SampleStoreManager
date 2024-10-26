@@ -41,14 +41,19 @@ class ItemManager:
         if not requested_item:
             ItemManager.raises_common_errors(NotFound, raises_for="item")
         try:
-            ean = spec_dict.get('ean')
-            del spec_dict['ean']  # no need to be in specs as well
-            category = spec_dict.get('category')
-            del spec_dict['category']  # no need to be in specs
-            name = spec_dict.get('name')
-            del spec_dict['name']  # no need to be in specs
-            part_number = spec_dict.get('Model')
-            del spec_dict['Model']
+            ean = spec_dict.get("ean")
+            if isinstance(ean, list):
+                """
+                ean is returned as str or None
+                """
+                ean = ean[0]
+            del spec_dict["ean"]  # no need to be in specs as well
+            category = spec_dict.get("category")
+            del spec_dict["category"]  # no need to be in specs
+            name = spec_dict.get("name")
+            del spec_dict["name"]  # no need to be in specs
+            part_number = spec_dict.get("Model")
+            del spec_dict["Model"]
             if ean:
                 requested_item.ean = ean
             if category:
@@ -62,7 +67,7 @@ class ItemManager:
             do_commit(requested_item)
             return requested_item
         except KeyError as ke:
-            raise KeyError(f'Invalid data received: {str(ke)}')
+            raise KeyError(f"Invalid data received: {str(ke)}")
 
     @staticmethod
     def update_item_fields(data_to_change: dict):
@@ -89,22 +94,28 @@ class ItemManager:
         :return: none -> updated stock value of item
         """
         for item in data.get("items"):
-            item_to_restock = ItemManager.get_item(item.get("prod_id"))
+            item_to_restock = ItemManager.get_item(
+                item.get("prod_id"), for_restock=True
+            )
             item_to_restock.stocks += item.get("stock")
         db.session.flush()
 
     @staticmethod
-    def get_item(item_id: int):
+    def get_item(item_id: int, for_restock: bool = False):
         """
         Get specific item information
         :param item_id: item_id
+        :param for_restock: Bool if True return item even if it's 0 stock
         :return:
         """
-        item: ItemModel = db.session.execute(db.select(ItemModel).filter_by(id=item_id)).scalar()
+        item: ItemModel = db.session.execute(
+            db.select(ItemModel).filter_by(id=item_id)
+        ).scalar()
 
         if not item:
             ItemManager.raises_common_errors(NotFound, "item")
-        if item.stocks <= 0:
+
+        if item.stocks <= 0 and not for_restock:
             raise NotFound("The requested item is currently not available for sale!")
 
         return item

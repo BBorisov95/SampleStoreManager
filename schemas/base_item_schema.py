@@ -1,7 +1,9 @@
 from marshmallow import Schema, fields
 
 from schemas.validators.item_validators.item_names_validator import validate_item_name
-from schemas.validators.item_validators.part_number_validator import validate_part_number
+from schemas.validators.item_validators.part_number_validator import (
+    validate_part_number,
+)
 from schemas.validators.item_validators.price_validator import validate_price
 
 
@@ -9,6 +11,7 @@ class BaseItemSchema(Schema):
     name = fields.String(required=True, validate=validate_item_name)
     part_number = fields.String(required=True, validate=validate_part_number)
     ean = fields.String(required=True)
+    last_update_by = fields.Integer(required=True)
 
 
 class BaseItemDetailSchema(BaseItemSchema):
@@ -17,11 +20,7 @@ class BaseItemDetailSchema(BaseItemSchema):
     specs = fields.Dict()
 
 
-class BaseUpdateItemSchema(Schema):
-    """
-    Does not inherit BaseItem, it will overwrite all fields.
-    Safer by declaring new.
-    """
+class BaseUpdateItemSchema(BaseItemSchema):
     name = fields.String(required=False, validate=validate_item_name)
     part_number = fields.String(required=False, validate=validate_part_number)
     ean = fields.String(required=False)
