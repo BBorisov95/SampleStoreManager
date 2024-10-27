@@ -22,4 +22,3 @@ class ItemRestockSchema(BaseUpdateItemSchema):
 class ItemListRestocksSchema(BaseUpdateItemSchema):
     items = fields.List(fields.Nested(ItemRestockSchema), required=True)
     last_update_by = fields.Integer(required=True)
-

@@ -3,11 +3,10 @@ from werkzeug.exceptions import NotFound, BadRequest
 
 from db import db
 from managers.order import OrderManager
-from models.order import OrderModel
-from models.enums import OrderStatus
 from models.client_basket import ClientBasket
+from models.enums import OrderStatus
 from models.item import ItemModel
-
+from models.order import OrderModel
 from services.discord.discord_bot import DiscordBot
 
 
@@ -58,23 +57,27 @@ class DispatcherManager:
     @staticmethod
     def dispatch_item(order_data: dict):
         order_id = order_data.get("order_id")
-        last_updated_by = order_data.get('last_update_by')
+        last_updated_by = order_data.get("last_update_by")
         order = OrderManager.get_specific_order(order_id)
         if not order:
             raise NotFound(f"Order with id: {order_id} not found!")
         if order.status == OrderStatus.dispatched:
             raise BadRequest(f"Order {order_id} already dispatched!")
-        order_elements: list[tuple] = OrderManager.get_items_of_order(order_id)
+        order_elements: list[tuple[ItemModel, ClientBasket]] = (
+            OrderManager.get_items_of_order(order_id)
+        )
 
         try:
-            for item, sold_pcs in order_elements:
-                DispatcherManager.reduce_item_quantity(item, sold_pcs, last_updated_by)
+            for item, cb in order_elements:
+                DispatcherManager.reduce_item_quantity(
+                    item, cb.quantity, last_updated_by
+                )
 
             order.status = OrderStatus.dispatched
             order.last_update_by = last_updated_by
             db.session.add(order)
             db.session.flush()
-            DiscordBot().send_msg(order_id)
+            DiscordBot().send_msg(order_id, "dispatch")
         except BadRequest as be:
             db.session.rollback()
             raise be
@@ -86,12 +89,13 @@ class DispatcherManager:
         :return:
         """
         OrderManager.change_order_status(
-            order_id=order_id, change_status_to=OrderStatus.shipped,
-            modify_by=user_id
+            order_id=order_id, change_status_to=OrderStatus.shipped, modify_by=user_id
         )
 
     @staticmethod
-    def reduce_item_quantity(prod: ItemModel, required_quantity: int, last_updated_by: int):
+    def reduce_item_quantity(
+        prod: ItemModel, required_quantity: int, last_updated_by: int
+    ):
         """
         If item is collected by dispatcher
         reduce stocks in warehouse

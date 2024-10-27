@@ -2,8 +2,8 @@ import re
 
 from werkzeug.exceptions import BadRequest
 
-from schemas.validators.empty_string_checker import is_empty_string
 from managers.country import CountryManager
+from schemas.validators.empty_string_checker import is_empty_string
 
 
 def validate_country(country: str):
