@@ -1,11 +1,26 @@
+from werkzeug.exceptions import NotFound
+
 from db import db
 from models.country import CountryModel
 from utils.db_handler import do_commit
 
-from werkzeug.exceptions import NotFound
-
 
 class CountryManager:
+
+    @staticmethod
+    def get_country_currency(country: str) -> str:
+        """
+        Return a string like column currency
+        :param country: country name
+        :return: currency e.g EUR, RSD
+        """
+
+        country_currency: CountryModel = db.session.execute(
+            db.select(CountryModel.currency).filter_by(country_name=country)
+        ).scalar()
+        if not country:
+            raise NotFound("Invalid country!")
+        return country_currency
 
     @staticmethod
     def get_delivery_tax(country: str, delivery_type: str) -> float:
@@ -76,7 +91,7 @@ class CountryManager:
             country.express_delivery_price = new_taxes.get(
                 "express_delivery_price", country.express_delivery_price
             )
-            country.last_update_by = new_taxes.get('last_update_by')
+            country.last_update_by = new_taxes.get("last_update_by")
             db.session.flush()
         else:
             raise NotFound("Country not found in db records!")
