@@ -1,11 +1,16 @@
+from sqlalchemy import event
 from sqlalchemy.exc import IntegrityError, PendingRollbackError
+from sqlalchemy.orm.attributes import get_history
 from werkzeug.exceptions import Conflict
 
 from db import db
-from sqlalchemy import event
-from sqlalchemy.orm.attributes import get_history
+from models import (
+    ItemModel,
+    UserModel,
+    OrderModel,
+    PayPalTransactionModel,
+)
 from models.operational_logs import Logs
-from models import ItemModel, UserModel, OrderModel, ClientBasket
 
 msg_mapper = {
     "UserModel": "User with this username or email already exist!",
@@ -28,6 +33,7 @@ def do_commit(obj: db.Model):
 
 @event.listens_for(ItemModel, "after_update")
 @event.listens_for(OrderModel, "after_update")
+@event.listens_for(PayPalTransactionModel, "after_update")
 def track_item_update(mapper, connection, target: db.Model):
     """
     Log all changes made for item
@@ -41,13 +47,19 @@ def track_item_update(mapper, connection, target: db.Model):
     if has_any_change:
         log: Logs
         change_msg_to_commit = change_msg_to_commit.format(user=user_id)
-        change_msg_to_commit += ';'.join(msg)
+        change_msg_to_commit += ";".join(msg)
         if type(target) is OrderModel:
-            log: Logs = Logs(user_id=user_id, order_id=target.id, log_info=change_msg_to_commit)
+            log: Logs = Logs(
+                user_id=user_id, order_id=target.id, log_info=change_msg_to_commit
+            )
         if type(target) is ItemModel:
-            log: Logs = Logs(user_id=user_id, prod_id=target.id, log_info=change_msg_to_commit)
-
+            log: Logs = Logs(
+                user_id=user_id, prod_id=target.id, log_info=change_msg_to_commit
+            )
+        if type(target) is PayPalTransactionModel:
+            log: Logs = Logs(user_id=user_id, log_info=change_msg_to_commit)
         db.session.add(log)
+
 
 @event.listens_for(ItemModel, "after_insert")
 def track_item_create(mapper, connection, target: ItemModel):
@@ -58,9 +70,30 @@ def track_item_create(mapper, connection, target: ItemModel):
     :param target: ItemModel
     :return: None add new record to db
     """
-    user_id = target.last_update_by
+    user_id = try_get_user_id(target)
     msg = f"Created new item in db: {target.id} with id: {target.id}, name: {target.name}, price: {target.price}"
     log: Logs = Logs(user_id=user_id, prod_id=target.id, log_info=msg)
+    db.session.add(log)
+
+
+@event.listens_for(PayPalTransactionModel, "after_insert")
+def track_transaction_create(mapper, connection, target: PayPalTransactionModel):
+    """
+    Log all creation made for a transaction
+    :param mapper: sql.mapper -> point to Target
+    :param connection: session connection
+    :param target: PayPalTransactionModel
+    :return: None add new record to db
+    """
+    user_id: UserModel = try_get_user_id(target)
+    msg = (
+        f"Created new transaction in db with paypal_transaction_id: {target.paypal_transaction_id},"
+        f"status: {target.status}",
+        f"internal_user_id: {target.internal_user_id}",
+        f"transaction_amount: {target.transaction_amount}",
+        f"reference_id: {target.reference_id}",
+    )
+    log: Logs = Logs(user_id=user_id, log_info=msg)
     db.session.add(log)
 
 
@@ -77,7 +110,8 @@ def check_for_changes(target: db.Model) -> tuple[bool, list[str], int or None]:
         state = get_history(target, field)
         if state.has_changes():
             if not has_any_change:
-                user_id = target.last_update_by
+
+                user_id = try_get_user_id(target)
                 has_any_change = True
             if isinstance(target, ItemModel) and field == "specs":
                 new_specs: dict = state.added[0]
@@ -96,3 +130,14 @@ def check_for_changes(target: db.Model) -> tuple[bool, list[str], int or None]:
                 f"Changed {field} from {state.deleted} to {state.added}. "
             )
     return has_any_change, change_msg_to_commit, user_id
+
+
+def try_get_user_id(target: [OrderModel, PayPalTransactionModel, ItemModel]):
+    try:
+        user_id = target.last_update_by
+        return user_id
+    except AttributeError:
+        user_id = db.session.execute(
+            db.select(UserModel.id).filter_by(role="admin")
+        ).scalar()
+        return user_id
