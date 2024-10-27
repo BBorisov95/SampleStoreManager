@@ -8,6 +8,7 @@ Create Date: 2024-10-12 02:53:11.073247
 
 import sqlalchemy as sa
 from alembic import op
+from decouple import config
 
 # revision identifiers, used by Alembic.
 revision = "6af748fd2893"
@@ -56,13 +57,24 @@ def upgrade():
         sa.Column("last_name", sa.String(length=255), nullable=False),
         sa.Column(
             "role",
-            sa.Enum("regular", "managers", "dispatcher", name="userrole"),
+            sa.Enum("admin", "regular", "manager", "dispatcher", name="userrole"),
             nullable=False,
         ),
-        sa.Column("number_of_orders", sa.Integer(), nullable=False),
+        sa.Column(
+            "number_of_orders",
+            sa.Integer(),
+            nullable=False,
+            default=0,
+            server_default="0",
+        ),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("username"),
+    )
+
+    op.execute(
+        f"INSERT users (email, password, username, first_name, last_name, role)"
+        f"VALUES (admin@admin.com, {config('admin_pass')}, admin, system, admin, admin)"
     )
     # ### end Alembic commands ###
 
@@ -72,4 +84,6 @@ def downgrade():
     op.drop_table("users")
     op.drop_table("orders")
     op.drop_table("items")
+    op.execute("DROP TYPE userrole;")
+    op.execute("DROP TYPE orderstatus;")
     # ### end Alembic commands ###
