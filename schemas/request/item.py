@@ -18,7 +18,7 @@ class ItemRestockSchema(BaseUpdateItemSchema):
     stock = fields.Integer(required=True, validate=lambda x: x > 0)
     last_update_by = fields.Integer(required=False)
 
+
 class ItemListRestocksSchema(BaseUpdateItemSchema):
     items = fields.List(fields.Nested(ItemRestockSchema), required=True)
     last_update_by = fields.Integer(required=True)
-

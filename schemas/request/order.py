@@ -1,8 +1,8 @@
 from marshmallow import Schema, fields
 from marshmallow_enum import EnumField
-from schemas.base_order_address_schema import DeliveryAddressSchema
 
 from models.enums import DeliveryType
+from schemas.base_order_address_schema import DeliveryAddressSchema
 
 
 class OrderBucketSchema(Schema):
@@ -14,3 +14,4 @@ class OrderPlaceSchema(Schema):
     items = fields.List(fields.Nested(OrderBucketSchema), required=True)
     delivery_address = fields.Nested(DeliveryAddressSchema, required=True)
     delivery_type = EnumField(DeliveryType, required=True)
+    last_update_by = fields.Integer(required=True)

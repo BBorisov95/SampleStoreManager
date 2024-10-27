@@ -2,12 +2,12 @@ from sqlalchemy import func
 from werkzeug.exceptions import NotFound
 
 from db import db
-from managers.item import ItemManager
 from managers.country import CountryManager
+from managers.item import ItemManager
 from models.client_basket import ClientBasket
-from models.enums import OrderStatus, DeliveryType
-from models.order import OrderModel
+from models.enums import OrderStatus, DeliveryType, PaymentStatus
 from models.item import ItemModel
+from models.order import OrderModel
 from models.user import UserModel
 from utils.db_handler import do_commit
 
@@ -45,14 +45,19 @@ class OrderManager:
             baskets.append(basket)
 
         to_insert_order_data: dict = {"customer_id": user_obj.id}
-        delivery_info = order_data.get("delivery_address")
-        deliver_to_country = delivery_info.get("to_country")
-        delivery_type = order_data.get("delivery_type")
-        delivery_tax = CountryManager.get_delivery_tax(
+        delivery_info: dict = order_data.get("delivery_address")
+        deliver_to_country: str = delivery_info.get("to_country")
+        delivery_type: str = order_data.get("delivery_type")
+        delivery_tax: float = CountryManager.get_delivery_tax(
             deliver_to_country, delivery_type
         )
-        to_insert_order_data.update({"payment_for_shipping": delivery_tax})
-
+        currency: str = CountryManager.get_country_currency(deliver_to_country)
+        to_insert_order_data.update(
+            {"payment_for_shipping": delivery_tax, "order_currency": currency}
+        )
+        to_insert_order_data.update(
+            {"last_update_by": order_data.get("last_update_by")}
+        )
         to_insert_order_data.update(**delivery_info)
         new_order: OrderModel = OrderModel(**to_insert_order_data)
         new_order.total_order = total_price
@@ -67,14 +72,26 @@ class OrderManager:
         return new_order
 
     @staticmethod
-    def change_order_status(order_id: int, change_status_to: OrderStatus, modify_by: int):
+    def change_order_status(
+        order_id: int, change_status_to: OrderStatus, modify_by: int = None
+    ):
 
         requested_order: OrderModel = OrderManager.get_specific_order(order_id)
         if not requested_order:
             raise NotFound(f"Order with id {order_id} not found!")
 
         requested_order.status = change_status_to.name
-        requested_order.last_update_by = modify_by
+        if modify_by:
+            requested_order.last_update_by = modify_by
+        do_commit(requested_order)
+
+    @staticmethod
+    def change_order_payment_status(order_id: int, payment_status: PaymentStatus):
+        requested_order: OrderModel = OrderManager.get_specific_order(order_id)
+        if not requested_order:
+            raise NotFound(f"Order with id {order_id} not found!")
+
+        requested_order.payment_status = payment_status.name
         do_commit(requested_order)
 
     @staticmethod
@@ -114,7 +131,7 @@ class OrderManager:
         :return: list of items
         """
         query = (
-            db.select(ItemModel, ClientBasket.quantity)
+            db.select(ItemModel, ClientBasket)
             .select_from(OrderModel)
             .join(ClientBasket, ClientBasket.order_id == OrderModel.id)
             .join(ItemModel, ClientBasket.product_id == ItemModel.id)

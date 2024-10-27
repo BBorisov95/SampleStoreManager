@@ -1,3 +1,5 @@
+import json
+
 from flask_restful import request
 from marshmallow import Schema
 from werkzeug.exceptions import BadRequest, Forbidden
@@ -10,7 +12,7 @@ def validate_schema(schema_name):
         def wrapper(*args, **kwargs):
             schema: Schema = schema_name()
             data = request.get_json()
-            data['last_update_by'] = auth.current_user().id
+            is_user_attached(data)
             errors = schema.validate(data)
             if errors:
                 raise BadRequest(f"Invalid payload {errors}")
@@ -32,3 +34,11 @@ def permission_required(required_role):
         return wrapper
 
     return decorator
+
+
+def is_user_attached(data: json):
+    try:
+        data["last_update_by"] = auth.current_user().id
+        return data
+    except AttributeError as attr_err:
+        return

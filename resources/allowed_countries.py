@@ -6,11 +6,11 @@ Will be exposed to endpoint
 from flask import request
 from flask_restful import Resource
 
-from schemas.response.allowed_countries import AllowedCountriesResponseSchema
-from schemas.request.country import CountryCreateAndUpdateSchema
 from managers.authenticator import auth
 from managers.country import CountryManager
 from models.enums import UserRole
+from schemas.request.country import CountryCreateAndUpdateSchema
+from schemas.response.allowed_countries import AllowedCountriesResponseSchema
 from utils.decorators import validate_schema, permission_required
 
 
