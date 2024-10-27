@@ -35,8 +35,9 @@ def downgrade():
         batch_op.alter_column(
             "ean",
             existing_type=sa.String(length=13),
-            type_=sa.INTEGER(),
+            type_=sa.BIGINT(),
             existing_nullable=False,
+            postgresql_using="ean::BIGINT",
         )
 
     # ### end Alembic commands ###
