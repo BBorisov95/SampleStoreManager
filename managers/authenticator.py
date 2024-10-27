@@ -5,7 +5,7 @@ import werkzeug.exceptions
 from decouple import config
 from flask_httpauth import HTTPTokenAuth
 from jwt.exceptions import DecodeError
-from werkzeug.exceptions import Unauthorized, BadRequest
+from werkzeug.exceptions import Unauthorized, BadRequest, InternalServerError
 
 from db import db
 from models import UserModel
@@ -17,7 +17,7 @@ class AuthenticatorManager:
     def encode_token(user):
         payload_data = {
             "sub": user.id,
-            "exp": datetime.utcnow() + timedelta(days=30), # TODO ONLY FOR TESTING!
+            "exp": datetime.utcnow() + timedelta(days=30),  # TODO ONLY FOR TESTING!
             "role": user.role if isinstance(user.role, str) else user.role.name,
         }
         token = jwt.encode(
@@ -37,9 +37,8 @@ class AuthenticatorManager:
             if Empty token or wrong token
             """
             raise BadRequest("Invalid credentials!")
-        except Exception as e:
-            # TODO do not raise general exception
-            raise e
+        except KeyError as ke:
+            raise InternalServerError(f"Missing config values.")
 
 
 auth = HTTPTokenAuth(scheme="Bearer")
