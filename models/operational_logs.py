@@ -14,8 +14,14 @@ class Logs(db.Model):
     """
 
     id: Mapped[int] = mapped_column(db.Integer(), primary_key=True)
-    user_id: Mapped[int] = mapped_column(db.Integer(), db.ForeignKey("users.id"), nullable=False)
-    prod_id: Mapped[int] = mapped_column(db.Integer(), db.ForeignKey("items.id"))
-    order_id: Mapped[int] = mapped_column(db.Integer(), db.ForeignKey("orders.id"))
+    user_id: Mapped[int] = mapped_column(
+        db.Integer(), db.ForeignKey("users.id"), nullable=False
+    )
+    prod_id: Mapped[int] = mapped_column(
+        db.Integer(), db.ForeignKey("items.id"), nullable=True
+    )
+    order_id: Mapped[int] = mapped_column(
+        db.Integer(), db.ForeignKey("orders.id"), nullable=True
+    )
     log_info: Mapped[str] = mapped_column(db.Text(), nullable=False)
     created_at: Mapped[datetime] = mapped_column(db.DateTime, server_default=func.now())
