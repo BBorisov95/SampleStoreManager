@@ -37,7 +37,7 @@ def downgrade():
     with op.batch_alter_table("orders", schema=None) as batch_op:
         batch_op.add_column(
             sa.Column(
-                "ship_to", sa.VARCHAR(length=255), autoincrement=False, nullable=False
+                "ship_to", sa.VARCHAR(length=255), autoincrement=False
             )
         )
         batch_op.drop_column("to_zipcode")
