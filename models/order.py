@@ -31,9 +31,12 @@ class OrderModel(db.Model):
         default=PaymentStatus.unpaid,
     )
     total_order: Mapped[float] = mapped_column(db.Float(), nullable=False, default=0)
+    order_currency: Mapped[str] = mapped_column(
+        db.String(), nullable=False, default="EUR", server_default="EUR"
+    )
     created_at: Mapped[datetime] = mapped_column(db.DateTime, server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(db.DateTime, server_default=func.now())
     last_update_by: Mapped[int] = mapped_column(
-        db.Integer(), db.ForeignKey("users.id"),
+        db.Integer(),
+        db.ForeignKey("users.id"),
     )
-
