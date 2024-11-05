@@ -3,3 +3,4 @@ from models.item import *
 from models.order import *
 from models.paypal_transactions import *
 from models.user import *
+from models.country import *

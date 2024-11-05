@@ -48,5 +48,5 @@ def validate_postal_code(postal_code: str):
     except ValueError:
         raise BadRequest(
             f"Invalid postal code format. Required type is COUNTRY_PREFIX:POSTAL_CODE."
-            f" List of prefixes can be found here: /show-countries "
+            f" List of prefixes can be found here: /show-countries"
         )

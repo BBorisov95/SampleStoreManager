@@ -13,13 +13,8 @@ class TestItemCrudMethods(APIBaseTestCase):
 
     def setUp(self):
         super().setUp()
-        self.user: UserModel = UserFactory(role=UserRole.manager)
         self.item: ItemModel = ItemFactory(id=1)  # force to be 1
-        self.user_token: str = generate_token(self.user)
-        self.headers: dict = {
-            "Authorization": f"Bearer {self.user_token}",
-            "Accept": "application/json",
-        }
+        self.headers: dict = self.return_user_headers(UserRole.manager)
 
         self.base_data: dict = {
             "name": "Item1",

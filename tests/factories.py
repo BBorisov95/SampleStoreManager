@@ -4,7 +4,7 @@ import factory
 from werkzeug.security import generate_password_hash
 
 from db import db
-from models import UserModel, UserRole, ItemModel, OrderModel
+from models import UserModel, UserRole, ItemModel, OrderModel, CountryModel
 from models.enums import OrderStatus, PaymentStatus, DeliveryType
 
 """
@@ -82,7 +82,7 @@ class ItemFactory(BaseFactory):
     last_update_by: int = factory.LazyAttribute(lambda _: UserFactory().id)
 
 
-class OrderFactory(factory.alchemy.SQLAlchemyModelFactory):
+class OrderFactory(BaseFactory):
     """
     Order creation factory
     use random data
@@ -113,3 +113,28 @@ class OrderFactory(factory.alchemy.SQLAlchemyModelFactory):
     last_update_by: int = factory.LazyAttribute(
         lambda _: UserFactory().id
     )  # Creates a User and assigns their ID
+
+
+class CountryFactory(BaseFactory):
+
+    class Meta:
+        model = CountryModel
+
+    id: int = factory.Sequence(lambda n: n + 1)
+    country_name: str = factory.Faker("country")
+    prefix: str = factory.Faker("country_code")
+    regular_delivery_price: float = factory.Faker(
+        "pyfloat", left_digits=2, right_digits=2, positive=True
+    )
+    fast_delivery_price: float = factory.Faker(
+        "pyfloat", left_digits=2, right_digits=2, positive=True
+    )
+    express_delivery_price: float = factory.Faker(
+        "pyfloat", left_digits=2, right_digits=2, positive=True
+    )
+    currency: str = factory.Faker("currency_code")
+    created_at: datetime = factory.LazyFunction(datetime.utcnow)
+    updated_at: datetime = factory.LazyFunction(datetime.utcnow)
+    last_update_by: int = factory.LazyAttribute(
+        lambda _: UserFactory(role=UserRole.manager).id
+    )
