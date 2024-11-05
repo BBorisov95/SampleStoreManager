@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 
 import jwt
-import werkzeug.exceptions
 from decouple import config
 from flask_httpauth import HTTPTokenAuth
 from jwt.exceptions import DecodeError
@@ -49,5 +48,9 @@ def verify_token(token):
     try:
         user_id, user_type = AuthenticatorManager.decode_token(token)
         return db.session.execute(db.select(UserModel).filter_by(id=user_id)).scalar()
-    except werkzeug.exceptions.Unauthorized:
+    except (Unauthorized, BadRequest):
+        """
+        If empty token is passed will raise BadRequest.
+        Which basically is wrong token.
+        """
         raise Unauthorized("Wrong token provided!")

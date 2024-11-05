@@ -18,6 +18,8 @@ class ItemResponseDispatcherSchema(BaseItemSchema):
 class ItemResponseManagersSchema(ItemResponseDispatcherSchema):
     stocks = fields.Integer(required=True)
     sold_pieces = fields.Integer(required=True)
+    price = fields.Integer(required=True)
+    last_update_by = fields.Integer(required=True)
 
 
 class ItemResponseUpdateSpecSchema(BaseUpdateItemSchema):

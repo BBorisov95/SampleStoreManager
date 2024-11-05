@@ -19,6 +19,7 @@ from schemas.response.item import (
 )
 from services.icecat.icecat_extractor import IceCatExtractor
 from utils.decorators import permission_required, validate_schema
+from werkzeug.exceptions import BadRequest
 
 
 class CreateItem(Resource):
@@ -36,6 +37,8 @@ class DeleteItem(Resource):
     @auth.login_required
     @permission_required(UserRole.manager)
     def delete(self, item_id: int):
+        if not item_id:
+            raise BadRequest(f"Item id cannot be Null or Zero!")
         ItemManager.delete_item(item_id)
         return {}, 204
 

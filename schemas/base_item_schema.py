@@ -1,4 +1,4 @@
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, EXCLUDE
 
 from schemas.validators.item_validators.item_names_validator import validate_item_name
 from schemas.validators.item_validators.part_number_validator import (
@@ -11,7 +11,13 @@ class BaseItemSchema(Schema):
     name = fields.String(required=True, validate=validate_item_name)
     part_number = fields.String(required=True, validate=validate_part_number)
     ean = fields.String(required=True)
-    last_update_by = fields.Integer(required=True)
+
+    class Meta:
+        """
+        Exclude last_update_by for most of the cases
+        """
+
+        unknown = EXCLUDE
 
 
 class BaseItemDetailSchema(BaseItemSchema):
@@ -27,3 +33,4 @@ class BaseUpdateItemSchema(BaseItemSchema):
     price = fields.Float(required=False, validate=validate_price)
     category = fields.String(required=False)
     specs = fields.Dict()
+    last_update_by = fields.Integer(required=True)
