@@ -1,9 +1,7 @@
 from copy import deepcopy
 
-from models.country import CountryModel
+from models import CountryModel, ItemModel, OrderModel, ClientBasket
 from models.enums import UserRole, OrderStatus
-from models.item import ItemModel
-from models.order import OrderModel
 from tests.base_functionalities import APIBaseTestCase
 from tests.factories import ItemFactory, OrderFactory, UserFactory
 
@@ -69,7 +67,7 @@ class TestOrders(APIBaseTestCase):
         """
 
         # invalid prod_id
-        invalid_prod_id_data = deepcopy(self.valid_data)
+        invalid_prod_id_data: dict = deepcopy(self.valid_data)
         invalid_prod_id_data["items"][0]["prod_id"] = "invalid"
         expected_msg = (
             "Invalid payload {'items': {0: {'prod_id': ['Not a valid integer.']}}}"
@@ -77,7 +75,7 @@ class TestOrders(APIBaseTestCase):
         self.make_invalid_requests(data=invalid_prod_id_data, msg=expected_msg)
 
         # invalid quantity:
-        invalid_prod_quantity = deepcopy(self.valid_data)
+        invalid_prod_quantity: dict = deepcopy(self.valid_data)
         invalid_prod_quantity["items"][0]["quantity"] = 0
         expected_msg = (
             "Invalid payload {'items': {0: {'prod_id': ['Not a valid integer.']}}}"
@@ -93,7 +91,7 @@ class TestOrders(APIBaseTestCase):
         :return:
         """
         # invalid to_country
-        invalid_to_country = deepcopy(self.valid_data)
+        invalid_to_country: dict = deepcopy(self.valid_data)
         invalid_to_country["delivery_address"]["to_country"] = "Japan"
         expected_msg = (
             f"Sorry we cannot deliver your order to {invalid_to_country['delivery_address']['to_country']}."
@@ -102,7 +100,7 @@ class TestOrders(APIBaseTestCase):
         self.make_invalid_requests(invalid_to_country, expected_msg)
 
         # Empty City name
-        invalid_to_city = deepcopy(self.valid_data)
+        invalid_to_city: dict = deepcopy(self.valid_data)
         invalid_to_city["delivery_address"]["to_city"] = ""
         expected_msg = (
             "Invalid payload {'delivery_address': {'to_city': ['City cannot be empty "
@@ -111,7 +109,7 @@ class TestOrders(APIBaseTestCase):
         self.make_invalid_requests(invalid_to_city, expected_msg)
 
         # missing to_street_address
-        invalid_to_street_address = deepcopy(self.valid_data)
+        invalid_to_street_address: dict = deepcopy(self.valid_data)
         del invalid_to_street_address["delivery_address"]["to_street_address"]
         expected_msg = (
             "Invalid payload {'delivery_address': {'to_street_address': ['Missing data "
@@ -120,7 +118,7 @@ class TestOrders(APIBaseTestCase):
         self.make_invalid_requests(invalid_to_street_address, expected_msg)
 
         # missing to_building_number
-        invalid_to_building_number = deepcopy(self.valid_data)
+        invalid_to_building_number: dict = deepcopy(self.valid_data)
         del invalid_to_building_number["delivery_address"]["to_building_number"]
         expected_msg = (
             "Invalid payload {'delivery_address': {'to_building_number': ['Missing data "
@@ -129,7 +127,7 @@ class TestOrders(APIBaseTestCase):
         self.make_invalid_requests(invalid_to_building_number, expected_msg)
 
         # validate bad zipcode
-        invalid_to_zipcode = deepcopy(self.valid_data)
+        invalid_to_zipcode: dict = deepcopy(self.valid_data)
         del invalid_to_zipcode["delivery_address"]["to_zipcode"]
         expected_msg = (
             "Invalid payload {'delivery_address': {'to_zipcode': ['Missing data "
@@ -138,7 +136,7 @@ class TestOrders(APIBaseTestCase):
         self.make_invalid_requests(invalid_to_zipcode, expected_msg)
 
         # validate zipcode empty code
-        invalid_to_zipcode = deepcopy(self.valid_data)
+        invalid_to_zipcode: dict = deepcopy(self.valid_data)
         invalid_to_zipcode["delivery_address"]["to_zipcode"] = ""
         expected_msg = (
             "Invalid payload {'delivery_address': {'to_zipcode': ['Postal Code cannot be empty "
@@ -147,7 +145,7 @@ class TestOrders(APIBaseTestCase):
         self.make_invalid_requests(invalid_to_zipcode, expected_msg)
 
         # validate_postal_code validator valueError
-        invalid_to_zipcode = deepcopy(self.valid_data)
+        invalid_to_zipcode: dict = deepcopy(self.valid_data)
         invalid_to_zipcode["delivery_address"]["to_zipcode"] = "BGR1000"
         expected_msg = (
             "Invalid postal code format. Required type is COUNTRY_PREFIX:POSTAL_CODE. "
@@ -156,7 +154,7 @@ class TestOrders(APIBaseTestCase):
         self.make_invalid_requests(invalid_to_zipcode, expected_msg)
 
         # validate_postal_code validator not valid
-        invalid_to_zipcode = deepcopy(self.valid_data)
+        invalid_to_zipcode: dict = deepcopy(self.valid_data)
         invalid_to_zipcode["delivery_address"]["to_zipcode"] = "BGR:DAS"
         expected_msg = "Postal Code is not valid!"
         self.make_invalid_requests(invalid_to_zipcode, expected_msg)
@@ -167,7 +165,7 @@ class TestOrders(APIBaseTestCase):
         """
 
         # invalid enum
-        not_valid_data = deepcopy(self.valid_data)
+        not_valid_data: dict = deepcopy(self.valid_data)
         not_valid_data["delivery_type"] = "notvalidData"
         expected_msg = (
             "Invalid payload {'delivery_type': ['Invalid enum member notvalidData']}"
@@ -175,7 +173,7 @@ class TestOrders(APIBaseTestCase):
         self.make_invalid_requests(not_valid_data, expected_msg)
 
         # missing delivery_type
-        missing_delivery_type = deepcopy(self.valid_data)
+        missing_delivery_type: dict = deepcopy(self.valid_data)
         del missing_delivery_type["delivery_type"]
         expected_msg = (
             "Invalid payload {'delivery_type': ['Missing data for required field.']}"
@@ -191,10 +189,10 @@ class TestOrders(APIBaseTestCase):
         country_express_delivery_price = self.county.express_delivery_price
 
         # create item with required stocks:
-        quantity_to_order = self.valid_data["items"][0]["quantity"]
+        quantity_to_order: float = self.valid_data["items"][0]["quantity"]
         item: ItemModel = ItemFactory(id=1, stocks=quantity_to_order)
         item_regular_price: float = item.price
-        expected_item_total_order_price = item_regular_price * quantity_to_order
+        expected_item_total_order_price: float = item_regular_price * quantity_to_order
 
         # check db initial status
         orders: list[OrderModel] = OrderModel.query.all()
@@ -225,6 +223,49 @@ class TestOrders(APIBaseTestCase):
             expected_payed_delivery=country_regular_delivery_price,
             expected_orders_in_db=3,
         )
+
+    def test_valid_order_add_records_to_client_basket(self):
+        """
+        test if successful order add the records to basket
+        Note: reduce is happening on dispatch item and not convert here!
+        """
+        client_basket: list[ClientBasket] = ClientBasket.query.all()
+        self.assertEqual(len(client_basket), 0)
+
+        quantity_to_order: float = self.valid_data["items"][0]["quantity"]
+        item: ItemModel = ItemFactory(id=1, stocks=quantity_to_order, sold_pieces=0)
+        item_regular_price: float = item.price
+        expected_item_total_order_price: float = item_regular_price * quantity_to_order
+
+        # check db initial status
+        orders: list[OrderModel] = OrderModel.query.all()
+        self.assertEqual(len(orders), 0)
+
+        # verify item initial sold pcs
+        self.assertEqual(item.sold_pieces, 0)
+
+        # place express order
+        self.make_valid_request(
+            data_to_use=self.valid_data,
+            expected_total_order_cost=expected_item_total_order_price,
+            expected_payed_delivery=self.county.express_delivery_price,
+            expected_orders_in_db=1,
+        )
+
+        orders: list[OrderModel] = OrderModel.query.all()
+
+        # verify created baskets
+        client_basket: list[ClientBasket] = ClientBasket.query.all()
+        self.assertEqual(len(client_basket), 1)
+
+        # verify correct basket inserts
+        for indx, cb in enumerate(client_basket):
+            self.assertEqual(client_basket[indx].product_sold_price, item.price)
+            self.assertEqual(client_basket[indx].product_id, item.id)
+            self.assertEqual(client_basket[indx].order_id, orders[0].id)
+
+        # verify items sold pcs ++
+        self.assertEqual(item.sold_pieces, 2)
 
     def test_valid_order_with_multiple_items(self):
         """

@@ -27,6 +27,9 @@ class TestProtectedEndpoints(APIBaseTestCase):
         ("POST", "/dispatcher/dispatch"),
         ("GET", "/dispatcher/get-orders"),
         ("PUT", "/dispatcher/approve-shipped/1"),
+        # Country
+        ("POST", "/management/create-country"),
+        ("PUT", "/management/update-country-taxes"),
     )
 
     def make_multiple_users_access_check_endpoint(self, users: list, endpoints: tuple):
