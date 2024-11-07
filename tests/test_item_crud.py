@@ -1,9 +1,13 @@
+from unittest.mock import patch
+
 from db import db
 from models.enums import UserRole
 from models.item import ItemModel
 from models.user import UserModel
+from services.icecat.icecat_extractor import IceCatExtractor
 from tests.base_functionalities import generate_token, APIBaseTestCase
 from tests.factories import UserFactory, ItemFactory
+from tests.helpers import icecat_spec_mock
 
 
 class TestItemCrudMethods(APIBaseTestCase):
@@ -212,12 +216,33 @@ class TestItemCrudMethods(APIBaseTestCase):
         )
         self.assertNotEquals(initial_item_state, state_after_update.part_number)
 
-    def test_add_spec_schema(self):
+    @patch.object(IceCatExtractor, "do_request", return_value=icecat_spec_mock)
+    def test_add_spec_schema(self, mocked_specs):
         """
         Test schema where DE team can update specks
         """
-        data_to_add = {}
-        # TODO MUST MOCK
+        headers: dict = self.return_user_headers(for_role=UserRole.data_entry)
+        data: dict = {
+            "internal_prod_id": self.item.id,
+            "brand": self.item.brand,
+            "product_code": self.item.part_number,
+            "ean": None,  # invalid
+            "use_paid_account": None,  # invalid
+        }
+        resp = self.client.put(
+            "/data-entry/item/update-item-spec", headers=headers, json=data
+        )
+        self.assert400(resp)
+        for missing_field in ["ean", "use_paid_account"]:
+            self.assertIn(missing_field, resp.json["message"])
+
+        del data["ean"]
+        data["use_paid_account"] = ("", "")
+        resp = self.client.put(
+            "/data-entry/item/update-item-spec", headers=headers, json=data
+        )
+        self.assertEqual(resp.status_code, 201)
+        mocked_specs.assert_called_once()
 
     def test_item_restock_schema(self):
         """

@@ -1,9 +1,8 @@
 from decouple import config
 
-from config import create_app
 from config import ProductionConfig, DevelopmentConfig
+from config import create_app
 from db import db
-
 
 environment = config("working_env")
 if environment == "dev":

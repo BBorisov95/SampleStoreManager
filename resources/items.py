@@ -1,5 +1,6 @@
 from flask import request
 from flask_restful import Resource
+from werkzeug.exceptions import BadRequest
 
 from managers.authenticator import auth
 from managers.item import ItemManager
@@ -19,7 +20,6 @@ from schemas.response.item import (
 )
 from services.icecat.icecat_extractor import IceCatExtractor
 from utils.decorators import permission_required, validate_schema
-from werkzeug.exceptions import BadRequest
 
 
 class CreateItem(Resource):

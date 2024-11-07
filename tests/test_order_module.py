@@ -1,7 +1,7 @@
 from copy import deepcopy
 
 from models import CountryModel, ItemModel, OrderModel, ClientBasket
-from models.enums import UserRole, OrderStatus
+from models.enums import UserRole
 from tests.base_functionalities import APIBaseTestCase
 from tests.factories import ItemFactory, OrderFactory, UserFactory
 
@@ -322,36 +322,3 @@ class TestOrders(APIBaseTestCase):
         self.assertEqual(user_with_id_zero_orders_ids, [1, 3, 5])
         user_with_id_two_orders_ids = [o.id for o in user_with_id_two_orders]
         self.assertEqual(user_with_id_two_orders_ids, [2, 4])
-
-    def test_change_order_status_to_dispatched(self):
-        """
-        Test the behavior of order status changes
-        """
-        # TODO MOCK DISCORD AND/OR MOVE TO OTHER TEST SUIT?
-
-        # initial state
-        order: OrderModel = OrderFactory(id=1)
-        self.assertEqual(order.status, OrderStatus.new)
-
-        # permission error
-        resp = self.client.post(
-            "/dispatcher/dispatch", headers=self.headers, json={"order_id": 1}
-        )
-        permission_required = resp.json["message"]
-        self.assertEqual(
-            permission_required, "You do not have permissions to access this resource"
-        )
-
-        # successfully change
-        self.headers = self.return_user_headers(UserRole.dispatcher)
-        resp = self.client.post(
-            "/dispatcher/dispatch", headers=self.headers, json={"order_id": 1}
-        )
-        self.assert200(resp)
-        self.assertEqual(order.status, OrderStatus.dispatched)
-
-    def test_change_order_payment_status(self):
-        """
-        Test the behavior of order status changes
-        """
-        # TODO MOCK PAYPAL AND/OR MOVE TO OTHER TEST SUIT?

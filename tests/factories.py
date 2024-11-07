@@ -4,7 +4,14 @@ import factory
 from werkzeug.security import generate_password_hash
 
 from db import db
-from models import UserModel, UserRole, ItemModel, OrderModel, CountryModel
+from models import (
+    UserModel,
+    UserRole,
+    ItemModel,
+    OrderModel,
+    CountryModel,
+    PayPalTransactionModel,
+)
 from models.enums import OrderStatus, PaymentStatus, DeliveryType
 
 """
@@ -75,7 +82,7 @@ class ItemFactory(BaseFactory):
     brand: str = factory.Faker("company")
     category: str = factory.Faker("word")
     specs: dict = factory.Dict({})
-    stocks: int = factory.Faker("random_int", min=0, max=10)
+    stocks: int = factory.Faker("random_int", min=1, max=10)
     sold_pieces: int = factory.Faker("random_int", min=0, max=10)
     created_at: datetime = factory.LazyFunction(datetime.utcnow)
     updated_at: datetime = factory.LazyFunction(datetime.utcnow)
@@ -116,6 +123,9 @@ class OrderFactory(BaseFactory):
 
 
 class CountryFactory(BaseFactory):
+    """
+    Create random Country
+    """
 
     class Meta:
         model = CountryModel
@@ -138,3 +148,25 @@ class CountryFactory(BaseFactory):
     last_update_by: int = factory.LazyAttribute(
         lambda _: UserFactory(role=UserRole.manager).id
     )
+
+
+class PayPayTransactionFactory(BaseFactory):
+    """
+    Create random PayPal transction
+    """
+
+    class Meta:
+        model = PayPalTransactionModel
+
+    id: int = factory.Sequence(lambda n: n + 1)
+    paypal_transaction_id: str = factory.Faker("swift8")
+    status: str = factory.LazyAttribute(lambda _: "NEW")
+    internal_user_id: int = factory.LazyAttribute(lambda _: UserFactory().id)
+    paypal_customer_acc_id: str = factory.Faker("sbn9")
+    transaction_amount: float = factory.Faker(
+        "pyfloat", left_digits=2, right_digits=2, positive=True
+    )
+    transaction_currency: str = factory.LazyAttribute(lambda _: "EUR")
+    reference_id: int = factory.LazyAttribute(lambda _: OrderFactory().id)
+    created_at: datetime = factory.LazyFunction(datetime.utcnow)
+    updated_at: datetime = factory.LazyFunction(datetime.utcnow)

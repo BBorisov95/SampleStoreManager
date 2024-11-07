@@ -4,8 +4,15 @@ from config import TestingConfig
 from config import create_app
 from db import db
 from managers.authenticator import AuthenticatorManager
-from models import UserModel, UserRole, CountryModel, ItemModel
-from tests.factories import UserFactory, CountryFactory
+from models import (
+    UserModel,
+    UserRole,
+    CountryModel,
+    ItemModel,
+    OrderModel,
+    ClientBasket,
+)
+from tests.factories import UserFactory, CountryFactory, ItemFactory
 
 
 def generate_token(user):
@@ -85,6 +92,45 @@ class APIBaseTestCase(TestCase):
         items: list[ItemModel] = ItemModel.query.all()
         self.assertEqual(len(items), 1)
         return items
+
+    def create_order_which_has_client_basket_records(self) -> OrderModel:
+        """
+        Create an order && add record to client_basket
+        """
+        headers: dict = self.return_user_headers(for_role=UserRole.regular)
+        ItemFactory()
+        self.create_countries(country_name="Bulgaria", country_code="BGN")
+
+        initial_orders: list[OrderModel] = OrderModel.query.all()
+        self.assertEqual(len(initial_orders), 0)
+        initial_basket: list[ClientBasket] = ClientBasket.query.all()
+        self.assertEqual(len(initial_basket), 0)
+
+        item: ItemModel = ItemModel.query.scalar()
+        data: dict = {
+            "items": [
+                {"prod_id": item.id, "quantity": item.stocks},
+            ],
+            "delivery_address": {
+                "to_country": "Bulgaria",
+                "to_city": "Sofia",
+                "to_zipcode": "BGR:1000",
+                "to_street_address": "Opulchenska",
+                "to_building_number": 6,
+            },
+            "delivery_type": "express",
+        }
+
+        resp = self.client.post("/item/purchase", headers=headers, json=data)
+        self.assertEqual(resp.status_code, 201)
+
+        orders_db: list[OrderModel] = OrderModel.query.all()
+        self.assertEqual(len(orders_db), 1)
+
+        client_basket_db: list[ClientBasket] = ClientBasket.query.all()
+        self.assertEqual(len(client_basket_db), 1)
+
+        return orders_db[0]
 
     @staticmethod
     def return_user_headers(for_role: UserRole):

@@ -23,19 +23,26 @@ class TestCountryModule(APIBaseTestCase):
         Get all allowed countries
         """
 
-        for _ in range(5):
-            CountryFactory()
+        unique_country_names = ["Bulgaria", "Serbia", "Greece"]
+        for unique_name in unique_country_names:
+            CountryFactory(country_name=unique_name)
 
-        all_countries: list[str] = [c.country_name for c in CountryModel.query.all()]
+        all_countries: list[str] = [
+            c.country_name.lower() for c in CountryModel.query.all()
+        ]
         for user_role in UserRole:
             resp = self.client.get(
                 "/show-countries", headers=self.return_user_headers(for_role=user_role)
             )
+            response_countries = [
+                country.lower()
+                for country in resp.json["countries"]
+                .get("allowed_countries_to_deliver")
+                .keys()
+            ]
+
             for country in all_countries:
-                self.assertIn(
-                    country,
-                    resp.json["countries"].get("allowed_countries_to_deliver").keys(),
-                )
+                self.assertIn(country.lower(), response_countries)
             self.assert200(resp)
 
     def test_country_create_and_update_schema(self):
