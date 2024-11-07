@@ -50,4 +50,4 @@ jobs:
         paypal_client_id: ""
         paypal_client_secret: ""
         pp_brand_name: ${{ secrets.pp_brand_name}}
-      run:  pytest -vl --disable-warnings --tb=line
+      run:  pytest -vl --disable-warnings --tb=short
