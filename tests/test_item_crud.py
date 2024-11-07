@@ -185,6 +185,29 @@ class TestItemCrudMethods(APIBaseTestCase):
             self.assertIn(field, fields_to_view)
         self.assertEqual(resp.status_code, 200)
 
+    def test_get_item_data_entry_schema(self):
+        """
+        verify response schema for data entry team
+        """
+        user: UserModel = UserFactory(role=UserRole.data_entry)
+        token: str = generate_token(user)
+        self.headers["Authorization"] = f"Bearer {token}"
+        resp = self.client.get("/item/get-item/1", headers=self.headers)
+        visible_fields: list = resp.json["item"].keys()
+        fields_to_view: list = [
+            "name",
+            "part_number",
+            "ean",
+            "price",
+            "category",
+            "specs",
+            "last_update_by",
+            "id",
+        ]
+        for field in visible_fields:
+            self.assertIn(field, fields_to_view)
+        self.assertEqual(resp.status_code, 200)
+
     def test_get_items_from_category_many_true_response(self):
         """
         Test get items from category with many=true

@@ -24,3 +24,7 @@ class ItemResponseManagersSchema(ItemResponseDispatcherSchema):
 
 class ItemResponseUpdateSpecSchema(BaseUpdateItemSchema):
     id = fields.Integer(required=True)
+
+
+class ItemResponseDataEntrySchema(ItemResponseUpdateSpecSchema):
+    pass

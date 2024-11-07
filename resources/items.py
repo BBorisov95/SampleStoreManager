@@ -15,6 +15,7 @@ from schemas.request.spec import SpecAddSchema
 from schemas.response.item import (
     ItemResponseSchema,
     ItemResponseManagersSchema,
+    ItemResponseDataEntrySchema,
     ItemResponseDispatcherSchema,
     ItemResponseUpdateSpecSchema,
 )
@@ -56,6 +57,8 @@ class GetItem(Resource):
             return {"item": ItemResponseManagersSchema().dump(requested_item)}, 200
         if user.role == UserRole.dispatcher:
             return {"item": ItemResponseDispatcherSchema().dump(requested_item)}, 200
+        if user.role == UserRole.data_entry:
+            return {"item": ItemResponseDataEntrySchema().dump(requested_item)}, 200
 
 
 class GetItemsFromCategory(Resource):
