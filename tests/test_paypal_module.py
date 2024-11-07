@@ -106,7 +106,7 @@ class TestPayPalModule(APIBaseTestCase):
         self.assertEqual(resp.json["message"], "Payment is successfully processed!")
         mock_paypal_confirm_order.assert_called_once_with(fake_token)
         mock_paypal_capture_order.assert_called_once_with(fake_token)
-        mock_paypal_auth.assert_called_once()
+        self.assertEqual(mock_paypal_auth.call_count, 2)
         mock_discord_bot.assert_called_once_with(order_id, "payment_success")
 
         order: OrderModel = OrderModel.query.filter_by(id=order_id).scalar()
