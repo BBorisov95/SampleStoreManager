@@ -1,0 +1,51 @@
+name: Simple Store Manager
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - '*'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15.0
+        env:
+          POSTGRES_USER: ${{ secrets.db_user}}
+          POSTGRES_PASSWORD: ${{ secrets.db_pass}}
+          POSTGRES_DB: ${{ secrets.db_name}}
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"
+    - name: Install dependencies and test
+      env:
+        db_user: ${{ secrets.db_user}}
+        db_pass: ${{ secrets.db_pass}}
+        db_host: ${{ secrets.db_host}}
+        db_port: ${{ secrets.db_port}}
+        db_name: ${{ secrets.db_name}}
+        test_db_name: ${{ secrets.test_db_name}}
+        working_env: ${{ secrets.working_env}}
+        secret_key: ${{ secrets.secret_key}}
+        dns: ${{ secrets.dns}}
+        admin_pass: ${{ secrets.admin_pass}}
+        discord_bot_id: ""
+        discord_channel_id: ""
+        paypal_url: ""
+        paypal_client_id: ""
+        paypal_client_secret: ""
+        pp_brand_name: ${{ secrets.pp_brand_name}}
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        black .
+        pytest -vl --disable-warnings
