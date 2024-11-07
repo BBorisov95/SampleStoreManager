@@ -13,7 +13,7 @@ class BaseUserSchema(Schema):
 
 
 class UserLoginSchema(BaseUserSchema):
-    password = fields.String(required=True, validate=validate_password)
+    password = fields.String(required=True)
 
 
 class UserRegisterSchema(UserLoginSchema):

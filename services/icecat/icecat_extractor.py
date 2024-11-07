@@ -9,7 +9,7 @@ class IceCatExtractor:
         brand: str,
         product_code: str,
         ean: int or None = None,
-        use_paid_account: bool = False,
+        use_paid_account: bool or tuple[str, str] = False,
         *args,
         **kwargs,
     ):
@@ -70,7 +70,8 @@ class IceCatExtractor:
         if json_response:
             return self.extract_json_response_info(json_response)
 
-    def extract_json_response_info(self, json_object: dict):
+    @staticmethod
+    def extract_json_response_info(json_object: dict):
         json_obj_general_info = json_object.get("data").get("GeneralInfo")
         ice_cat_category = (
             json_obj_general_info.get("Category").get("Name").get("Value")

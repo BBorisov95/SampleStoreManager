@@ -41,8 +41,8 @@ class PayOrder(Resource):
 class PayPalConfirmRedirect(Resource):
 
     def get(self):
-        token = request.args.get("token")
-        payer_id = request.args.get("PayerID")
+        token = request.args.get("token", False)
+        payer_id = request.args.get("PayerID", False)
 
         if token and payer_id:
             PayPal().confirm_order(token)
@@ -61,10 +61,10 @@ class PayPalConfirmRedirect(Resource):
                 )
                 return {"message": "Payment is successfully processed!"}
         else:
-            return BadRequest("Missing token or payer ID.")
+            raise BadRequest("Missing token or payer ID.")
 
 
 class PayPalDeclineRedirect(Resource):
     def get(self, order_id):
         DiscordBot().send_msg(order_id, "payment_failed")
-        return BadRequest(f"Payment Declined!")
+        return {"message": "Payment Declined!"}, 200

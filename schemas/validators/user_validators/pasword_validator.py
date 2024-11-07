@@ -28,6 +28,7 @@ def validate_password(password: str, fn: str = None, ln: str = None):
 
     if re.search(r"\d{2,}", password):
         raise ValidationError("Password must not contain consecutive digits.")
+
     if fn and ln:
         fn = fn.lower()
         ln = ln.lower()

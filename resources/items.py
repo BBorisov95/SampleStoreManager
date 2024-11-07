@@ -1,5 +1,6 @@
 from flask import request
 from flask_restful import Resource
+from werkzeug.exceptions import BadRequest
 
 from managers.authenticator import auth
 from managers.item import ItemManager
@@ -36,6 +37,8 @@ class DeleteItem(Resource):
     @auth.login_required
     @permission_required(UserRole.manager)
     def delete(self, item_id: int):
+        if not item_id:
+            raise BadRequest(f"Item id cannot be Null or Zero!")
         ItemManager.delete_item(item_id)
         return {}, 204
 

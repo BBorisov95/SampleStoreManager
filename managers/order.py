@@ -41,7 +41,7 @@ class OrderManager:
                 quantity=item_quantity,
                 product_sold_price=item_price,
             )
-            total_price += item_price
+            total_price += item_price * item_quantity
             baskets.append(basket)
 
         to_insert_order_data: dict = {"customer_id": user_obj.id}
