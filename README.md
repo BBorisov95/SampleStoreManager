@@ -9,9 +9,11 @@
    7) [Update Fields](#update-fields)
    8) [Items restock](#items-restock)
    9) [Spec Update](#spec-update)
-   10) [Countries](#counties)
+   10) [Orders](#orders)
+   11) [Countries](#counties)
 2) [IceCat](#ice-cat)
-2) [Discoed](#discord)
+3) [Discord](#discord)
+4) [PayPal](#paypal)
 
 ## Endpoints
 
@@ -19,59 +21,71 @@
 
 Will make new record in db. Return logged user auth. token
 
-url_endpoint: `http://127.0.0.1:5000/register`
 
-method: `POST`
-access: `public`
+| Method  | Access | Endpoint | Required Headers  |
+|---------|--------|----------|-------------------|
+| GET     | Public |`/register`| `application/json`|
 
+<details> 
+    <summary> Example Payload </summary>
 
-example payload:
 ```json
 {
-"username": "user",
-"password": "Valid@$$w0rd",
-"first_name": "User",
-"last_name": "One",
-"email": "useroe@user.com"
-    }
+  "username": "user",
+  "password": "Valid@$$w0rd",
+  "first_name": "User",
+  "last_name": "One",
+  "email": "useroe@user.com"
+}
 ```
+</details>
 
-Expected response:
+<details> 
+    <summary> Expected response </summary>
 
 1) Valid:
 ```json
 
-{
-    "token": "auth token"
+{ 
+  "token": "auth token"
 }
+
 ```
 2) Invalid:
 ```json
 {
-    "message": "Invalid payload {error info}"
+  "message": "Invalid payload {error info}"
 }
 ```
---
+
+</details>
+
+
+---
 ### Login
 
 Authorize the user. Will assign token
 
-url_endpoint: `http://127.0.0.1:5000/login`
 
-method: `POST`
+| Method | Access | Endpoint | Required Headers  |
+|-------|--------|----------|-------------------|
+| POST  | Public | `/login` | `application/json`|
 
-access: `public`
+<details> 
+    <summary>Example Payload</summary>
 
-
-example payload:
 ```json
 {
-    "username":"user1",
-    "password":"Valid@$$w0rd"
+  "username":"UserName",
+  "password":"Password"
 }
 ```
 
-Expected response:
+</details>
+
+<details> 
+    <summary>Example Response</summary>
+
 
 1) Valid:
 ```json
@@ -80,25 +94,31 @@ Expected response:
     "token": "auth token"
 }
 ```
+
 2) Invalid:
+
 ```json
 {
     "message": "Invalid payload {error info}"
 }
 ```
+
+</details>
+
 ---
 ### Create item
 
-Will create new record in db
-
-Url_endpoint: `http://127.0.0.1:5000/management/create-item`
-
-method: `POST`
-
-access: `private` Only managers can access this resource
+Accessing this endpoint with the right credentials and payload will create a new Item in the DataBase.
 
 
-example payload:
+| Method | Access  | Endpoint | Required Headers                              | Additional Restrictions                                 |
+|-------|---------|----------|-----------------------------------------------|---------------------------------------------------------|
+| POST  | Private | `/management/item/create-item` | `application/json`<br/>`Authorization Bearer` | Only users with role `mangers` <br/>can access this endpoint |
+
+
+<details>
+    <summary> Example Payload </summary>
+
 ```json
 {
     "name": "Item7",
@@ -109,10 +129,11 @@ example payload:
     "specs": {},
     "stocks":2
 }
-
 ```
+</details>
 
-Expected response:
+<details>
+    <summary> Expected response </summary>
 
 1) Valid:
 ```json
@@ -129,37 +150,53 @@ Expected response:
 ```
 2) Invalid: -> `HTTP 409`
 
+</details>
+
 ---
 
 ### Delete item
 
-Requires manager roles.
-
-url_endpoint: `http://127.0.0.1:5000/management/item/delete-item/<int: item_id>`
-
-method: `POST`
-
-access: `private`
+Hitting this endpoint will trigger a process for deleting items from DataBase.
 
 
-Expected Responses
-1) Valid: `HTTP 204` 
+| Method | Access  | Endpoint                                      | Params                    | Required Headers | Additional Restrictions                                 |
+|-------|---------|-----------------------------------------------|---------------------------|------------------|------------------------------------------------------|
+| POST  | Private | `/management/item/delete-item/<int: item_id>` | Item identification numer |  `application/json`<br/>`Authorization Bearer` | Only users with role `mangers` <br/>can access this endpoint |
+
+
+<details>
+    <summary> Expected response </summary>
+
+1) Valid: `HTTP 204`
+
 2) Invalid `NotFound`
+</details>
 
 ---
 
 ### Get Item
 
-Each User.Role will see different output item fields.
+Accessing the endpoint wil results of displaying a product information. 
+The retrieved information is truncated based on the user's role 
 
-url_endpoint = `http://127.0.0.1:5000/item/get-item/7`
-
-method: `GET`
-
-access: `private`. Every logged user can access this resource. With limited field view.
+| Method | Access  | Endpoint                        | Params                    | Required Headers | 
+|--------|---------|---------------------------------|---------------------------|------------------|
+| GET    | Private | `/item/get-item/<int: item_id>` | Item identification numer |  `application/json`<br/>`Authorization Bearer` |
 
 
-Expected responses:
+<details>
+    <summary>Additional Restrictions </summary>
+
+| User Role | Will not see                                                 |
+|-----------|--------------------------------------------------------------|
+| **Dispatcher**  | - price<br>- category<br>- specs<br>- stock<br>- sold pieces |
+| **Regular Users**| - id<br>- sold pieces<br>- stock                             |
+| **Data Entry**  | - sold pieces<br>- stock                                     |
+
+</details>
+
+<details>
+    <summary> Expected response </summary>
 
 1) Valid:
 ```json
@@ -168,73 +205,88 @@ Expected responses:
         "name": "",
         "part_number": "p4",
         "ean": "1234567891011",
-        "price": 201.0,  # dispatcher will not see this field
-        "category": "test2",  # dispatcher will not see this field
-        "specs": {}, # dispatcher will not see this field
-        "id": 7,  # only manager & dispatcher will see this field
-        "stocks": 2,   # only manager will see this field
-        "sold_pieces": 0  # only manager will see this field
+        "price": 201.0,
+        "category": "test2",
+        "specs": {}, 
+        "id": 7,
+        "stocks": 2,
+        "sold_pieces": 0
     }
 }
 ```
-2) Invalid -> `NotFound`
+2) Invalid -> `NotFound` Raised when no product found!
+
+</details>
 
 ---
 
 ### Get Items from category
 
 
-url_endpoint: `http://127.0.0.1:5000/item/category/test2`
+Similar to [Get Item](#get-item) but will return multiple object in an array. The same restrictions are applied.
 
-method: `get`
+| Method | Access  | Endpoint                  | Params        | Required Headers | 
+|--------|---------|---------------------------|---------------|------------------|
+| GET    | Private | `/items/category/<string:category_name>` | Category name |  `application/json`<br/>`Authorization Bearer` |
 
-access: `private` Every logged user can access this resource with limited field view mentored at `Get Item`.
-
-Similar to [Get Item](#get-item) but will return multiple object in an array:
+<details>
+    <summary> Expected response </summary>
 
 ```json
 {"{category_name}_items":[item1, item2]}
 ```
+</details>
 
 ---
 
 ### Update Fields
 
-Used to update item fields. Except `specs` and `restock`
+This resource is used to update item fields. Except `specs` and `restock`!
 
-url_endpoint: `management/item/update-item`
 
-`method`: `put`
+| Method | Access  | Endpoint                  | Required Headers | Additional Restrictions                       |
+|--------|---------|---------------------------|------------------|---------------------------------------|
+| PUT    | Private | `/management/item/update-item` |  `application/json`<br/>`Authorization Bearer` | Only `Mangers` can access this field! |
 
-`access`: `private` Only managers can access this resource
 
-The payload must have valid `prod_id`, also optional other ItemModel fields.
-Example payload:
+The payload must have valid `prod_id`, also optional other `ItemModel` fields.
+<details>
+    <summary> Example payload </summary>
+
+Where `prod_id` is required and `part_number` is optional
+
 ```json
 {
- "prod_id": 7, # required
- "part_number": "pt7" #optional     
+ "prod_id": 7,
+ "part_number": "pt7"  
 }
 
 ```
+</details>
 
-Expected responses: `201`, `403` or `404` if `prod_id` is not valid.
+<details>
+    <summary> Expected responses </summary>
+
+1) On Valid response: `201`, `403`.
+2) Invalid response will raise`404` if `prod_id` is not valid.
+
+</details>
 
 ---
 
 ### Items restock
 
-Used to increase the wherehouse stock of items.
-Can pass bulk of items at once. Making it possible to update multiple products.
+Used to increase the warehouse stock of items. Can pass bulk of items at once. Making it possible to update multiple products.
 
 
-`url_endpoint`: `http://127.0.0.1:5000/management/items/restock`
+| Method | Access  | Endpoint                  | Required Headers | Additional Restrictions                       |
+|--------|---------|---------------------------|------------------|---------------------------------------|
+| PUT    | Private | `/management/items/restock` |  `application/json`<br/>`Authorization Bearer` | Only `Mangers` can access this field! |
 
-`method`: `put`
 
-`access`: `private` Only managers can access this resource
+<details>
+    <summary>Expected payload</summary>
 
-Expected payload:
 
 ```json
 
@@ -254,7 +306,15 @@ Expected payload:
 
 ```
 
-Return `201` if successful or `404` if prod_id is not valid.
+</details>
+
+
+<details>
+    <summary>Expected response</summary>
+
+1) On valid requests:`201`.
+2) If requests is not Valid: `404`.
+</details>
 
 
 ---
@@ -265,26 +325,8 @@ Spec update endpoint is used to extract specs from 3rd party provider `IceCat`.
 The requested specs will overwrite all existing field value for `name`, `part_number`, `category`
 Will add json like values into column `specs`.
 
+Check more about `IceCat` -> [IceCat](#icecat)
 
-`url_endpoint`: `http://127.0.0.1:5000/data-entry/item/update-item-spec`
-`method`: `post`  -> Limited only for `data_entry` role users.
-
-Example payload:
-```json
-{
-    "brand": "Samsung",
-    "product_code": "EV-NX500ZBMHDE",
-    "ean": "",
-    "use_paid_account": ["",""],
-    "internal_prod_id": 5
-    
-}
-```
-
-Expected output:
-
-1) Valid -> json response with `kvp`
-2) Invalid -> Different STRING information about 3p provider status: `TimeOutError`, `change_ean`, `Full IceCat Required`
 ---
 
 ### Orders
@@ -293,12 +335,15 @@ The following section describe the orders endpoints and how to be used.
 
 1) PlaceOrder
 
-`url_endpoint`: `http://127.0.0.1:5000/item/purchase`
+Triggering this endpoint will create orders in the system. An order must have at least one item and valid delivery address.
 
-`method`: `post`
-`access`: `private` Only logged in users can make an order.
+| Method | Access  | Endpoint                  | Required Headers | Additional Restrictions |
+|--------|---------|---------------------------|------------------|-------------------------|
+| POST   | Private | `/item/purchase` |  `application/json`<br/>`Authorization Bearer` | Only logged users.      |
 
-payload:
+
+<details>
+    <summary>Example Payload</summary>
 
 ```json
 {
@@ -321,10 +366,12 @@ payload:
    },
    "delivery_type": "regular"
 }
-
 ```
+</details>
 
-* Expected Responses:
+
+<details>
+    <summary>Expected Responses</summary>
 
   1) Valid
    ```json
@@ -358,19 +405,22 @@ payload:
        "message": "Sorry we cannot deliver your order to Costa Ricka. Currently we can deliver only to: Bulgaria, Greece"
    }
    ```
+</details>
+
 
 2) Get orders
 
-Get current user all successfully placed orders.
-
-`url_endpoint`: `http://127.0.0.1:5000/get-orders`
-
-`method`: `GET`
-
-`access`: `private` Only logged users can access it.
+Get the logged user all successfully placed orders. Including the order details.
 
 
-Expected response:
+| Method | Access  | Endpoint                  | Required Headers | Additional Restrictions |
+|--------|---------|---------------------------|------------------|-------------------------|
+| GET    | Private | `/get-orders` |  `application/json`<br/>`Authorization Bearer` | Only logged users.      |
+
+
+<details>
+    <summary>Expected response</summary>
+
 ```json
 {
     "all_orders": [
@@ -402,21 +452,24 @@ Expected response:
 }
 ```
 
+</details>
+
 ---
 
 ### Counties
 
-Allowed countries are the places which we can operate on. An order can be placed only in this countries.
+Allowed countries are the places which we can operate on. An order can be placed only in these countries.
+Everyone can access this endpoints
 
 Each country has `name` and `prefix`
 
 
-`url_endpoint`: `http://127.0.0.1:5000/show-countries`
+| Method | Access | Endpoint                  | Required Headers |
+|--------|--------|---------------------------|------------------|
+| GET    | Public | `show-countries` |  `application/json`<br/>|
 
-`method`: `GET`
-`access`: `public` everyone can access it.
-
-Expected Response:
+<details>
+    <summary>Expected Response</summary>
 
 ```json
 {
@@ -429,17 +482,20 @@ Expected Response:
 }
 ```
 
+</details>
+
+---
+
 ### Create Country
 
 Create a new country where the system can operate. Here we set the currency and the prices for the different type of deliveries.
 
-`url_endpoint`: `http://127.0.0.1:5000/management/create-country`
+| Method | Access  | Endpoint                  | Required Headers | Additional Restrictions                       |
+|--------|---------|---------------------------|------------------|---------------------------------------|
+| POST   | Private | `/management/create-country` |  `application/json`<br/>`Authorization Bearer` | Only `Mangers` can access this field! |
 
-`method`: `POST`
-
-`access`: `private` only managers can create new records.
-
-Example payload:
+<details>
+    <summary>Example payload</summary>
 
 ```json
 {
@@ -450,22 +506,31 @@ Example payload:
     "express_delivery_price": 45.99,
     "currency": "EURO"
 }
-
 ```
 
-Response -> `{}, 201`
+</details>
 
+<details>
+    <summary>Expected Response </summary>
+
+A valid requests will return HTTP Status code: `201`
+
+</details>
+
+---
 ### Update Country delivery Taxes
 
-Update the country delivery fees.
+Used when the there is a need to update a country delivery fees.
 
-`url_endpoint`: `http://127.0.0.1:5000/management/update-country-taxes`
+| Method | Access  | Endpoint                  | Required Headers | Additional Restrictions                       |
+|--------|---------|---------------------------|------------------|---------------------------------------|
+| PUT    | Private | `/management/update-country-taxes` |  `application/json`<br/>`Authorization Bearer` | Only `Mangers` can access this field! |
 
-`method`: `PUT`
+<details>
+    <summary>Example payload </summary>
 
-`access`: private only manages can access it.
+The same schema as <i>Create Country</i>
 
-Example payload:
 ```json
 
 {
@@ -478,12 +543,78 @@ Example payload:
 }
 
 ```
+</details>
 
-Expected response: `{}, 201`
+<details>
+    <summary> Expected Response</summary>
+
+A valid request will return HTTP Status Code: `201`
+</details>
+
 
 ---
 
 ### IceCat
+
+IceCat module is used by DataEntry (UserRole) and has the rights to update the product fields and append specs.
+
+`url_endpoint`: `/data-entry/item/update-item-spec`
+
+`method`: `PUT`
+
+`access`: `private` Only users with dole data_entry can access it.
+
+
+| Method | Access  | Endpoint                  | Required Headers | Additional Restrictions                  |
+|--------|---------|---------------------------|------------------|------------------------------------------|
+| POST   | Private | `/data-entry/item/update-item-spec` |  `application/json`<br/>`Authorization Bearer` | Only `Data Entry` can access this field! |
+
+<details>
+    <summary>Example payload</summary>
+
+Where `use_paid_account` is tuple with private credentials `tuple(user_name: str, password: str)`. If provided can access larger database access from IceCat.
+Otherwise only free access is provided.
+
+```json
+{
+    "brand": "Samsung",
+    "product_code": "EV-NX500ZBMHDE",
+    "ean": "",
+    "use_paid_account": ["",""],
+    "internal_prod_id": 5
+    
+}
+```
+
+
+</details>
+
+<details>
+    <summary> Expected response </summary>
+
+1) Valid -> `json` response with `kvp`
+```json
+{
+    "message": "Item with id 10 is updated by data entry",
+    "specs": {
+        "name": "Haier HCE233S freezer",
+        "part_number": "HCE233S",
+        "ean": "6930265374711",
+        "price": 55.99,
+        "category": "Freezers",
+        "specs": {
+            "Brand": "Haier",
+            ...
+        },
+        "last_update_by": 1,
+        "id": 10
+    }
+}
+```
+
+2) Invalid -> Different STRING information about 3p provider status: `TimeOutError`, `change_ean`, `Full IceCat Required`.
+
+</details>
 
 
 ---
@@ -491,8 +622,33 @@ Expected response: `{}, 201`
 ### Discord
 
 
-Basic script which send massages to chanel regarding order statuses.
+Basic script which send messages to chanel regarding order statuses.
 
-bot_id and chanel_id must be set as env
+`bot_id` and `chanel_id` must be set as env
 
+There is no direct endpoint. It's invoked from the different managers.
+
+---
+
+### PayPal
+
+Simple PayPal integration, which allow payments of an order.
+
+`endpoint`: `/user/order/<int:order_id>/pay`
+
+`method`: `POST`
+
+`access`: `private` 
+
+
+| Method | Access  | Endpoint                  | Params                      | Required Headers                                | Additional Restrictions                      |
+|--------|---------|---------------------------|-----------------------------|-------------------------------------------------|----------------------------------------------|
+| POST   | Private | `/user/order/<int:order_id>/pay` | Order identification number |   `application/json`<br/>`Authorization Bearer` | Only Logged user can access this endpoint. Also there is a protection if logged user A try to access order for user B which will raise `Unauthorized(f"Sorry you cannot pay for this order. It's not yours!")`|
+
+
+When this endpoint is triggerd will send request to `PayPal` to create a transaction / receipt with order details. Including separated products / quantity total price per product.
+And final total price.
+
+After that will receive confirm link in the following format `{our_domain}/paypal-redirect/approve?token={}&PayerId={}`
+which is a `GET` request and can be handled easy from FE, to open new window with this link. Which will lead the user to his PayPal login screen and `Pay Order` button.
 ---
