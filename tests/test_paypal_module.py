@@ -30,7 +30,8 @@ class TestPayPalModule(APIBaseTestCase):
         "init_payment",
         return_value=[1, "some_link", "paypal_order_status", 12, "EUR"],
     )
-    def test_paying_foreign_order_raises_401(self, mock_paypal_payment):
+    @patch.object(PayPal, "_PayPal__do_auth")
+    def test_paying_foreign_order_raises_401(self, mock_paypal_auth, mock_paypal_payment):
         """
         Test the case where userA want to pay order for UserB
         """
@@ -66,6 +67,7 @@ class TestPayPalModule(APIBaseTestCase):
         mock_paypal_payment.assert_called_once_with(
             order, [(item_in_basket, client_basket)]
         )
+        mock_paypal_auth.assert_called_once()
 
     @patch.object(DiscordBot, "send_msg")
     @patch.object(
@@ -76,8 +78,9 @@ class TestPayPalModule(APIBaseTestCase):
         },
     )
     @patch.object(PayPal, "confirm_order")
+    @patch.object(PayPal, "_PayPal__do_auth")
     def test_paypal_confirm_endpoint(
-        self, mock_paypal_confirm_order, mock_paypal_capture_order, mock_discord_bot
+        self, mock_paypal_auth, mock_paypal_confirm_order, mock_paypal_capture_order, mock_discord_bot
     ):
         """
         Test the order change payment statuses
@@ -103,6 +106,7 @@ class TestPayPalModule(APIBaseTestCase):
         self.assertEqual(resp.json["message"], "Payment is successfully processed!")
         mock_paypal_confirm_order.assert_called_once_with(fake_token)
         mock_paypal_capture_order.assert_called_once_with(fake_token)
+        mock_paypal_auth.assert_called_once()
         mock_discord_bot.assert_called_once_with(order_id, "payment_success")
 
         order: OrderModel = OrderModel.query.filter_by(id=order_id).scalar()
