@@ -22,6 +22,7 @@ All changes related to `PayPal`, `Orders`, or `Items` are stored into log table,
 2) [IceCat](#icecat)
 3) [Discord](#discord)
 4) [PayPal](#paypal)
+5) [Project Setup Guide](#project-setup-guide)
 
 ## Endpoints
 
@@ -659,3 +660,127 @@ And final total price.
 
 After that will receive confirm link in the following format `{our_domain}/paypal-redirect/approve?token={}&PayerId={}`
 which is a `GET` request and can be handled easy from FE, to open new window with this link. Which will lead the user to his PayPal login screen and `Pay Order` button.
+
+---
+
+# Project Setup Guide
+
+## Prerequisites
+
+Before setting up the project, make sure you have the following installed:
+
+- **PostgreSQL**: You will need to have PostgreSQL installed and running on your system.
+- **Python 3.9+**: Python 3.9 or higher must be installed.
+- **Flask**:
+
+## Setup Instructions
+
+### For Windows OS
+
+1. **Install PostgreSQL**:
+   - Download and install PostgreSQL from [here](https://www.postgresql.org/download/windows/).
+   - During installation, ensure that the PostgreSQL bin directory is added to your system's PATH environment variable.
+
+2. **Install Python 3.9+:
+   - Download Python 3.9+ from [here](https://www.python.org/downloads/).
+
+3. **Clone the Project Repository**:
+   - Open Command Prompt and navigate to the directory where you want to clone the project:
+     ```bash
+     git clone https://github.com/BBorisov95/SampleStoreManager.git
+     cd SampleStoreManager
+     ```
+
+4. **Create and Activate Virtual Environment**:
+   - Create a virtual environment to isolate project dependencies:
+     ```bash
+     python -m venv venv
+     ```
+   - Activate the virtual environment:
+     ```bash
+     .\venv\Scripts\activate
+     ```
+
+5. **Install Required Packages**:
+   - Install all required dependencies:
+     ```bash
+     pip install -r requirements.txt
+     ```
+
+6. **Configure Database**:
+   - Set up PostgreSQL database and create a database for your project.
+   - Make sure your `SQLALCHEMY_DATABASE_URI` in the config file is set correctly (e.g., `postgresql://username:password@localhost/dbname`).
+
+7. **Run Database Migrations**:
+   - Apply the database migrations:
+     ```bash
+      flask db upgrade
+     ```
+
+8. **Run the Flask Application**:
+   - Start the Flask development server:
+     ```bash
+     flask run
+     ```
+   - Visit `http://127.0.0.1:5000/` to see the application in action.
+
+### For Unix OS (Linux/MacOS)
+
+1. **Install PostgreSQL**:
+   - On Ubuntu/Debian-based systems, install PostgreSQL via APT:
+     ```bash
+     sudo apt update
+     sudo apt install postgresql postgresql-contrib
+     ```
+   - On MacOS, install PostgreSQL via Homebrew:
+     ```bash
+     brew install postgresql
+     ```
+
+2. Install Python 3.9+:
+   - On Ubuntu/Debian-based systems, install Python and pip:
+     ```bash
+     sudo apt install python3.9 python3.9-venv python3.9-dev
+     sudo apt install python3-pip
+     ```
+   - On MacOS, install python following [MiniConda Docs](https://docs.conda.io/projects/conda/en/latest/user-guide/install/macos.html)
+
+3. **Clone the Project Repository**:
+   - Clone the project from GitHub:
+     ```bash
+     git clone https://github.com/BBorisov95/SampleStoreManager.git
+     cd SampleStoreManager
+     ```
+
+4. **Create and Activate Virtual Environment**:
+   - Create a virtual environment:
+     ```bash
+     python3 -m venv venv
+     ```
+   - Activate the virtual environment:
+     ```bash
+     source venv/bin/activate
+     ```
+
+5. **Install Required Packages**:
+   - Install dependencies from `requirements.txt`:
+     ```bash
+     pip install -r requirements.txt
+     ```
+
+6. **Configure Database**:
+   - Set up PostgreSQL database and create a database for your project.
+   - Ensure the `SQLALCHEMY_DATABASE_URI` in your configuration is correct.
+
+7. **Run Database Migrations**:
+   - Apply migrations:
+     ```bash
+      flask db upgrade
+     ```
+
+8. **Run the Flask Application**:
+   - Start the Flask application:
+     ```bash
+     flask run
+     ```
+   - Visit `http://127.0.0.1:5000/` to view the app.
