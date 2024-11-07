@@ -26,7 +26,13 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: "3.9"
-    - name: Install dependencies
+    - name: Install dependencies && requirements
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    - name: Run formatters
+      run:  black .
+    - name: Run Tests
       env:
         db_user: ${{ secrets.db_user}}
         db_pass: ${{ secrets.db_pass}}
@@ -44,10 +50,4 @@ jobs:
         paypal_client_id: ""
         paypal_client_secret: ""
         pp_brand_name: ${{ secrets.pp_brand_name}}
-      run:
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-    - name: Run formatters
-      run:  black .
-    - name: Run Tests
       run:  pytest -vl --disable-warnings
