@@ -46,8 +46,8 @@ jobs:
         admin_pass: ${{ secrets.admin_pass}}
         discord_bot_id: ""
         discord_channel_id: ""
-        paypal_url: ""
+        paypal_url: ${{ secrets.paypal_url}}
         paypal_client_id: ""
         paypal_client_secret: ""
         pp_brand_name: ${{ secrets.pp_brand_name}}
-      run:  pytest -vl --disable-warnings
+      run:  pytest -vl --disable-warnings --tb=line
