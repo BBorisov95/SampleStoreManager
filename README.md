@@ -1,4 +1,12 @@
+The project simulate `ERP` like system. Where we can create items. Enrichment them using 3th party provided. Order them and deliver them.
+The paymant system is `PayPal` 3th party service. And all order statuses are beign notified using `Discord` services.
 
+One order can contain one or more products.
+Each ordered product is stored into `Client Basket` where we can get the needed information whenever we need. 
+
+All changes related to `PayPal`, `Orders`, or `Items` are stored into log table, which makes the tracking of an issue more easly.
+
+---
 1) [Endpoints](#endpoints)
    1) [Register](#register)
    2) [Login](#login)
@@ -11,7 +19,7 @@
    9) [Spec Update](#spec-update)
    10) [Orders](#orders)
    11) [Countries](#counties)
-2) [IceCat](#ice-cat)
+2) [IceCat](#icecat)
 3) [Discord](#discord)
 4) [PayPal](#paypal)
 
@@ -651,4 +659,3 @@ And final total price.
 
 After that will receive confirm link in the following format `{our_domain}/paypal-redirect/approve?token={}&PayerId={}`
 which is a `GET` request and can be handled easy from FE, to open new window with this link. Which will lead the user to his PayPal login screen and `Pay Order` button.
----
