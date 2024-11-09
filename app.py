@@ -1,4 +1,5 @@
 from decouple import config
+from flask import jsonify
 
 from config import ProductionConfig, DevelopmentConfig
 from config import create_app
